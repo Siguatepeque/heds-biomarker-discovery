@@ -1,96 +1,106 @@
 # hEDS Biomarker Discovery
 
-A literature-based discovery (LBD) pipeline that mines PubMed for genes indirectly
-implicated in hypermobile Ehlers-Danlos Syndrome (hEDS) biology but never directly
-studied in hEDS itself — surfacing a small, ranked shortlist of hypotheses for further
-research, not a diagnostic test.
+A pipeline that reads PubMed for a living — specifically, it mines the literature on
+hypermobile Ehlers-Danlos Syndrome (hEDS) looking for genes that show up *near* the
+disease in the research, without ever being studied *in* it directly. The output is a
+short, ranked list of hypotheses worth a second look. Not a diagnosis, not a test —
+a lead list.
 
-## Why this exists
+## Why I built this
 
-hEDS is the one Ehlers-Danlos subtype with no clinically validated diagnostic
-biomarker. Diagnosis today is purely clinical (the 2017 international criteria:
-Beighton score, systemic manifestation checklist, family history, exclusion of other
-conditions). Real genetic hits have started to emerge — see [Prior work](#prior-work) —
-but nothing yet resolves into a test.
+hEDS is the one Ehlers-Danlos subtype nobody has a lab test for. You get diagnosed by
+checklist: how far your joints bend (the Beighton score), which of a long list of
+other symptoms you have, whether it runs in your family, and whether a doctor has
+ruled out everything else it could be instead. That's it. That's the 2017 diagnostic
+standard, and it's still the standard. Real genetic leads have started showing up in
+just the last couple of years (see [Prior work](#prior-work) below), but nothing has
+turned into an actual test yet.
 
-Given that, the honest and interesting angle isn't pretending to reverse-engineer a
-biomarker from a symptom checklist (that's just re-deriving the existing clinical
-criteria). It's **literature-based discovery**: apply Swanson's classic ABC model —
-if A (hEDS) is linked to B (some phenotype/pathway) in the literature, and B is linked
-to C (a gene) in the literature, but A and C are never linked directly, C is a
-literature-implied candidate worth a second look — using only free public data.
+Given that, I didn't want to build the obvious thing — a classifier trained on symptom
+checklists, which just re-learns the diagnostic criteria and calls it a "biomarker."
+Instead I went after something nobody seems to have tried for this disease: literature-
+based discovery. It's an old idea (Don Swanson used it in the 1980s to link fish oil
+and Raynaud's disease before anyone had run the trial). The logic: if hEDS is linked to
+some phenotype B in the literature, and B is linked to gene C in a totally different
+set of papers, but nobody has ever written a paper connecting hEDS to C directly — C is
+worth a look. All from free, public data, no lab access required.
 
-## Method
+## How it works
 
-1. **Fetch** (`fetch_literature.py`) — Query PubMed for hEDS/HSD-specific terminology
-   (deliberately excludes bare "Ehlers-Danlos syndrome" and other-subtype terms, so
-   classical/vascular-EDS genes don't pollute the corpus), then pull entity annotations
-   (genes, diseases, chemicals) for each abstract from NCBI's **PubTator3** API.
-2. **Graph** (`build_graph.py`) — Build a co-occurrence knowledge graph: nodes are
-   bioconcepts, edges are weighted by how often two concepts appear in the same
-   abstract, with a PMI score for association strength.
-3. **Discover** (`discover_candidates.py`) — ABC-model link prediction: genes directly
-   co-mentioned with hEDS/HSD are "already studied" and excluded; genes reachable only
-   through a shared bridge concept (2 hops, never 1) are ranked as candidates via the
-   Adamic-Adar index, which down-weights generic/promiscuous bridge terms (e.g. "pain")
-   more than specific ones — a known false-positive source in co-occurrence-based LBD.
-4. **Validate** (`validate_candidates.py`) — Cross-check the candidate shortlist against
-   independent public evidence: STRING (protein-interaction connectivity to known
-   hEDS-relevant genes), GTEx (expression in connective-tissue-proxy tissues,
-   principally cultured fibroblasts), and ClinVar (existing variant evidence).
-5. **Output**: `results/candidates.csv` — a ranked shortlist (~10-20 genes) with
-   evidence columns and a plain-language rationale per row.
+1. **Fetch** (`fetch_literature.py`) — pulls hEDS/HSD-specific papers from PubMed.
+   I deliberately left out bare "Ehlers-Danlos syndrome" and other-subtype terms, so
+   genes belonging to classical or vascular EDS don't sneak into the corpus. Each
+   abstract's genes, diseases, and chemicals get tagged by NCBI's **PubTator3**, so I
+   didn't have to write my own entity recognizer.
+2. **Graph** (`build_graph.py`) — turns all that into a co-occurrence graph. Two
+   concepts get an edge if they show up in the same abstract, weighted by how often,
+   plus a PMI score for how surprising that co-occurrence is.
+3. **Discover** (`discover_candidates.py`) — the actual ABC-model step. Anything
+   directly co-mentioned with hEDS is filed as "already studied" and set aside. What's
+   left — genes reachable only through a shared bridge concept, never directly — gets
+   ranked by Adamic-Adar score, which is just common-neighbors math that discounts
+   generic bridge terms (like "pain," which connects to everything) more than specific
+   ones. That distinction matters a lot; raw co-occurrence counting alone is a known
+   source of false positives in this kind of work.
+4. **Validate** (`validate_candidates.py`) — before anything makes the final list, it
+   gets checked against three independent public sources: STRING (does it physically
+   interact with a known hEDS-relevant protein?), GTEx (is it actually expressed in
+   connective tissue?), and ClinVar (does it have any documented variant record at
+   all?).
+5. Out comes `results/candidates.csv` — usually 10-20 genes, each with its evidence
+   and a plain-English reason it's on the list.
 
-All data sources are free, public, no-auth APIs. No patient data is used anywhere in
-this pipeline.
+Every data source here is free and public. No patient data touches this pipeline at
+any point.
 
 ## Prior work
 
-This project doesn't operate in a vacuum — 2024-2025 brought the first real hEDS
-genetic findings, and the reference gene sets in `validate_candidates.py` are built
-from them, not from other EDS subtypes' genes:
+I didn't want to build this in a vacuum, so before writing any code I spent a while
+figuring out what's already been tried. Turns out 2024-2025 was a genuinely big couple
+of years for hEDS genetics — the reference gene sets baked into `validate_candidates.py`
+come from that work, not from the other EDS subtypes' better-known genes:
 
-- **KLK gene family cluster** (esp. *KLK15*) — recurrent variant found via whole-exome
-  sequencing of 200 hEDS patients, reproduces connective-tissue defects in mouse
-  knock-ins. [Norris Lab, 2024](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11213194/)
-- **ACKR3, SLC39A13** — the first hEDS GWAS meta-analysis (~1,800 cases, ~5,000
-  controls) found genome-wide-significant signal at these loci, pointing to a
-  neuroimmune/stromal model rather than a single collagen gene.
+- **KLK gene family** (especially *KLK15*) — a recurrent variant turned up in
+  whole-exome sequencing of 200 hEDS patients, and it reproduces connective-tissue
+  defects when reintroduced in mice.
+  [Norris Lab, 2024](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11213194/)
+- **ACKR3 and SLC39A13** — the first hEDS GWAS meta-analysis (roughly 1,800 cases
+  against 5,000 controls) found genome-wide-significant signal here, pointing toward a
+  neuroimmune/stromal story rather than a single collagen gene.
   [Petrucci-Nelson et al., medRxiv 2025](https://www.medrxiv.org/content/10.1101/2025.09.19.25336146v1)
-- **MIA3** — a separately proposed 2024-2025 candidate, still unresolved.
-- **TNXB** (partial/haploinsufficient) — the longest-studied lead, but explains only
-  ~1% of cases, and serum tenascin-X failed as a screening test in follow-up work.
-  Kept as a weak legacy positive control, not a strong reference.
-- **Plasma ECM-fragmentation signature** (fibronectin/collagen-I/tenascin fragments) —
-  the closest thing to an actual proposed biomarker in the literature, still
-  unvalidated. [Ritelli et al.](https://pubmed.ncbi.nlm.nih.gov/39225014/)
-- **HEDGE Study** — the Ehlers-Danlos Society's ongoing population-scale sequencing
-  effort (1,000 hEDS patients); results still emerging.
+- **MIA3** — another 2024-2025 candidate, still unresolved.
+- **TNXB** (partial deficiency) — the oldest lead in this space, but it only explains
+  about 1% of cases, and serum tenascin-X testing flopped as a screening tool when
+  people actually tried it. I kept it in as a weak legacy check, not a strong signal.
+- **A plasma ECM-fragmentation signature** (fibronectin/collagen-I/tenascin fragments)
+  — probably the closest thing to an actual proposed biomarker that exists right now,
+  still unvalidated. [Ritelli et al.](https://pubmed.ncbi.nlm.nih.gov/39225014/)
+- **The HEDGE Study** — the Ehlers-Danlos Society's own large-scale sequencing effort
+  (1,000 patients), still producing results.
 
-No prior work applying literature-based discovery, knowledge-graph mining, or the
-Swanson ABC model to hEDS specifically was found — this project is, as far as this
-review could tell, the first application of this method to this disease.
+As far as I could find — and I looked, specifically, more than once — nobody has
+pointed literature-based discovery or knowledge-graph mining at hEDS before. Not even
+at neighboring diseases with a similar "diagnosis of exclusion" problem, like long
+COVID or fibromyalgia. So this angle, at least, seems to be new.
 
-### Angles deliberately not pursued, and why
+### What I decided not to do, and why
 
-- **Symptom/comorbidity subtype clustering** — already done, repeatedly, at real scale
-  on real patient cohorts (Mayo Clinic, K-means/UMAP on ~2,100-2,700 patients,
-  [Petrucci et al. 2024](https://pubmed.ncbi.nlm.nih.gov/38779137/)). Re-running
-  clustering on synthetic or self-collected data would replicate published results with
-  worse data, not extend them.
-- **Digital/wearable biomarkers** (AI-scored Beighton assessment from video, wearable
-  HRV/autonomic monitoring) — real, active, and promising research directions, but
-  every dataset behind them is access-gated ("available upon reasonable request"), not
-  publicly downloadable. Confirms literature-mining is the feasible public-data lane
-  for a project like this, not a workaround.
-- **SemMedDB** (semantic-predicate literature relations, a higher-precision alternative
-  to raw co-occurrence) — considered, but it was deprecated December 2024, is now a
-  frozen archive current only through May 2024 (would miss the 2025 GWAS and 2024
-  KLK15 findings above), and requires a UMLS/UTS license. Not worth the tradeoff for a
-  lean, current pipeline; PubTator3 co-occurrence with a hub-node degree cutoff is used
-  instead.
+- **Clustering patients into subtypes by symptoms.** Already done, and done well —
+  Mayo Clinic ran K-means and UMAP on 2,100+ real patients and published real subtypes.
+  [Petrucci et al. 2024](https://pubmed.ncbi.nlm.nih.gov/38779137/) I don't have that
+  data, and re-running the same analysis on something worse wouldn't add anything.
+- **Wearables and video-based biomarkers.** This is genuinely exciting research —
+  AI-scored hypermobility from video, wearable HRV tracking — but every dataset behind
+  it is "available on request," not public. Which, honestly, just confirmed that
+  literature mining was the right call for a project built entirely on public data.
+- **Swapping in SemMedDB** instead of raw co-occurrence. SemMedDB gives you semantic
+  relationships instead of "these two things appeared near each other," which sounds
+  strictly better. But it was deprecated in December 2024 and hasn't been updated
+  since — it would miss both the 2025 GWAS paper and the 2024 KLK15 finding above —
+  and it needs a UMLS license to even access. Not worth it for something meant to stay
+  current and easy to run.
 
-## Usage
+## Running it
 
 ```
 python -m venv venv
@@ -100,60 +110,63 @@ pip install -r requirements.txt
 python pipeline.py --top-n 20
 ```
 
-Runtime is dominated by API rate-limit pacing (~1 req/sec), not compute — expect
-roughly 10-15 minutes end to end for the full ~1,300-abstract corpus. Results are
-cached under `cache/` so re-runs are fast unless `--skip-cache` is passed.
+Most of the runtime is just being polite to free APIs (~1 request/sec), not actual
+computation — figure 10-15 minutes for the full ~1,300-abstract corpus. Everything gets
+cached under `cache/`, so re-runs are quick unless you pass `--skip-cache`.
 
-Flags: `--retmax` (PubMed result cap), `--min-weight` (minimum co-occurring abstracts
-to count an edge), `--max-bridge-degree` (hub-node exclusion threshold), `--top-n`
-(shortlist size).
+Other flags: `--retmax` (how many PubMed results to pull), `--min-weight` (how many
+co-occurring abstracts before an edge counts), `--max-bridge-degree` (the hub-node
+cutoff), `--top-n` (shortlist size).
 
-## Sample results (this run)
+## What it actually found
 
-On the corpus available at the time of writing (1,301 annotated abstracts, 1,345
-entity nodes, 20,238 co-occurrence edges), 2 clean hEDS/HSD-specific seed nodes were
-found. 18 genes were correctly bucketed as "already studied" — including **SLC39A13**
-and **TNXB**, both genuinely-studied hEDS-relevant genes, confirming the pipeline's
-direct-neighbor exclusion works as intended.
+On the corpus I had when writing this (1,301 abstracts, 1,345 entities, 20,238
+co-occurrence edges), the pipeline found 2 clean hEDS/HSD seed terms and correctly
+filed 18 genes as "already studied" — including **SLC39A13** and **TNXB**, both real
+hEDS-relevant genes. That's the sanity check working: the pipeline knows what's already
+known.
 
-12 candidates survived to the shortlist (`results/candidates.csv`). The top-ranked
-candidate by literature bridge score, **C1R (complement C1r)**, is notable: it wasn't
-put there by design, but it independently lines up with a 2025/2026 hEDS proteomics
-paper reporting complement-cascade proteins differentially expressed in patient plasma
-— an encouraging (if small) convergence between this literature-mining approach and
-independent wet-lab evidence. Most of the remaining candidates (COL3A1, COL6A3, PLOD1,
-B4GALT7, DSE, FKBP14, AEBP1) are genes that define *other* rare connective-tissue/EDS-
-spectrum disorders — biologically coherent as a "look at this related gene family"
-hypothesis, if not individually surprising.
+12 candidates made the final shortlist, topped by **COL3A1** — the gene that defines
+vascular EDS. That's not a surprise, biologically; it's a close nomenclature-and-
+literature neighbor of hEDS, so it makes sense it'd surface this way. Most of the top
+of the list is like that: COL6A3, PLOD1, B4GALT7, DSE, FKBP14, AEBP1 all define *other*
+EDS-spectrum disorders — a reasonable "maybe this whole gene family matters here too"
+hypothesis, not individually shocking.
 
-**Honest limitation**: the very newest 2024-2025 hEDS findings are not fully
-represented yet. ACKR3 (the 2025 GWAS hit) is present in the corpus (graph degree 19)
-but doesn't clear the co-occurrence weight threshold to register as "already studied" —
-consistent with only a handful of very recent papers discussing it in an hEDS context
-so far. KLK15 and MIA3 don't appear in the corpus at all, most likely because PubTator3
-hasn't finished indexing their (2024-2025) source papers yet. This is a real
-corpus-freshness constraint of the underlying data source, not a pipeline bug, and
-should resolve as PubTator3's index catches up and the pipeline is re-run over time.
+The one that actually stopped me, further down the list at #11, is **C1R (complement
+C1r)**. I didn't point the pipeline at it — it came out of the graph structure on its
+own — and it happens to line up with a 2025/2026 proteomics paper that found
+complement-cascade proteins showing up differently in hEDS patients' blood. It's not
+the strongest score in the shortlist, but it's the one place where this cheap
+literature-mining method and an unrelated wet-lab study landed on the same idea
+independently. That's worth more to me than a higher rank would be.
 
-## Verification
+Worth being upfront about: the newest 2024-2025 findings aren't well represented yet.
+ACKR3 shows up in the graph but hasn't cleared the co-occurrence threshold to count as
+"studied" — probably because only a handful of very recent papers mention it in an hEDS
+context so far. KLK15 and MIA3 don't show up in the corpus at all, most likely because
+PubTator3 hasn't finished indexing their source papers. That's a data-freshness problem
+with the underlying literature index, not a bug in the pipeline, and it should sort
+itself out as PubTator3 catches up and this gets re-run down the line.
 
-- `tests/test_build_graph.py` — a synthetic-graph smoke test proving the core
-  discovery logic actually distinguishes "directly studied" from "literature-implied
-  but never directly studied" candidates, with no network dependency. Run with
-  `venv\Scripts\python tests\test_build_graph.py`.
-- **Sanity check on real output**: known hEDS-relevant genes that appear in the real
-  corpus (KLK15, ACKR3, SLC39A13, TNXB) should land in the excluded "already studied"
-  bucket, not the final shortlist. If any of them surface as "novel," that's either a
-  corpus-date-cutoff issue or a genuinely interesting observation worth a closer look.
-- **Required human spot-check**: for the top candidates in `results/candidates.csv`,
-  read the rationale and the underlying bridge concept, and confirm it reflects real
-  biology rather than an annotation artifact. This is a hypothesis-generation tool —
-  every output needs that check before it means anything.
+## Does it actually work?
 
-## Limitations and ethics
+- `tests/test_build_graph.py` is a small synthetic-graph test that checks the core
+  logic actually separates "directly studied" from "implied but never studied" —
+  no network required. Run it with `venv\Scripts\python tests\test_build_graph.py`.
+- On real output, the sanity check is: known hEDS-relevant genes (KLK15, ACKR3,
+  SLC39A13, TNXB) should land in "already studied," not the shortlist. If one of them
+  ever shows up as a "candidate," that's either a corpus-timing issue or something
+  worth actually looking into.
+- And the one I can't automate away: read the top candidates yourself. Look at the
+  bridge concept connecting them to hEDS and ask whether it's real biology or an
+  annotation glitch. This is a hypothesis-generator, not an oracle — that check is
+  what makes the output mean anything.
 
-This is a **hypothesis-generating research tool, not a diagnostic instrument**. No
-confirmed diagnostic biomarker for hEDS exists in the published literature today. Every
-candidate this pipeline surfaces is, at best, a starting point for wet-lab or clinical
-follow-up — never something to act on directly, and never something that should be
-used to include, exclude, or influence an actual diagnosis.
+## The honest disclaimer
+
+This is a hypothesis-generating research tool, not a diagnostic instrument. There is no
+confirmed diagnostic biomarker for hEDS in the published literature — not from this
+project, not from anyone, not yet. Nothing here should be used to include, exclude, or
+otherwise influence an actual diagnosis. At best, a candidate on this list is a
+starting point for someone with a lab to look closer.
