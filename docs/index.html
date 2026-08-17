@@ -226,6 +226,13 @@
   .step-box { fill: var(--surface); stroke: var(--line); }
   .step-num { font-family: Georgia, serif; font-size: 20px; fill: var(--gold); }
 
+  /* candidates bar chart */
+  .bar-candidate { fill: var(--muted); }
+  .bar-corroborated { fill: var(--green); }
+  .bar-weak { fill: var(--gold); }
+  .chart-axis { stroke: var(--line); }
+  .chart-value { fill: var(--ink); }
+
   /* results table */
   .table-scroll {
     overflow-x: auto;
@@ -458,6 +465,76 @@
     co-occurrence edges), the pipeline correctly filed 24 genes as "already studied,"
     including COL3A1, COL6A3, SMAD3, and TNXB, and surfaced 10 candidates.
   </p>
+  <figure class="diagram">
+    <div class="frame">
+      <svg viewBox="0 0 820 330" role="img" aria-label="Bar chart of composite validation scores for the ten candidate genes, ranked highest to lowest: PLOD1 7.69, DSE 5.40, B4GALT7 5.40, AEBP1 5.29, TGFB1 5.22, SLC39A13 4.68, FKBP14 3.81, VWF 2.86, C1R 2.83, BCL2A1 2.78. SLC39A13, VWF, and C1R are marked independently corroborated by outside evidence; BCL2A1 is marked flagged weak.">
+        <g>
+          <circle cx="8" cy="10" r="5" class="bar-corroborated" />
+          <text x="18" y="14" class="node-sub">Independently corroborated</text>
+          <circle cx="230" cy="10" r="5" class="bar-weak" />
+          <text x="240" y="14" class="node-sub">Flagged weak</text>
+          <circle cx="360" cy="10" r="5" class="bar-candidate" />
+          <text x="370" y="14" class="node-sub">Candidate</text>
+        </g>
+        <line x1="150" y1="28" x2="150" y2="318" class="chart-axis" stroke-width="1" />
+        <g>
+          <rect x="150" y="39" width="600" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="52" class="node-label">PLOD1</text>
+          <text x="758" y="52" class="mono chart-value">7.69</text>
+        </g>
+        <g>
+          <rect x="150" y="67" width="422" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="80" class="node-label">DSE</text>
+          <text x="580" y="80" class="mono chart-value">5.40</text>
+        </g>
+        <g>
+          <rect x="150" y="95" width="422" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="108" class="node-label">B4GALT7</text>
+          <text x="580" y="108" class="mono chart-value">5.40</text>
+        </g>
+        <g>
+          <rect x="150" y="123" width="413" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="136" class="node-label">AEBP1</text>
+          <text x="571" y="136" class="mono chart-value">5.29</text>
+        </g>
+        <g>
+          <rect x="150" y="151" width="407" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="164" class="node-label">TGFB1</text>
+          <text x="565" y="164" class="mono chart-value">5.22</text>
+        </g>
+        <g>
+          <rect x="150" y="179" width="365" height="18" rx="3" class="bar-corroborated" />
+          <text x="4" y="192" class="node-label">SLC39A13</text>
+          <text x="523" y="192" class="mono chart-value">4.68</text>
+        </g>
+        <g>
+          <rect x="150" y="207" width="297" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="220" class="node-label">FKBP14</text>
+          <text x="455" y="220" class="mono chart-value">3.81</text>
+        </g>
+        <g>
+          <rect x="150" y="235" width="223" height="18" rx="3" class="bar-corroborated" />
+          <text x="4" y="248" class="node-label">VWF</text>
+          <text x="381" y="248" class="mono chart-value">2.86</text>
+        </g>
+        <g>
+          <rect x="150" y="263" width="221" height="18" rx="3" class="bar-corroborated" />
+          <text x="4" y="276" class="node-label">C1R</text>
+          <text x="379" y="276" class="mono chart-value">2.83</text>
+        </g>
+        <g>
+          <rect x="150" y="291" width="217" height="18" rx="3" class="bar-weak" />
+          <text x="4" y="304" class="node-label">BCL2A1</text>
+          <text x="375" y="304" class="mono chart-value">2.78</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      Composite score per candidate gene: literature-bridge strength plus STRING, GTEx, and ClinVar
+      validation evidence. Full per-gene breakdown in <code>results/candidates.csv</code>.
+    </figcaption>
+  </figure>
+
   <div class="table-scroll">
     <table class="results">
       <thead>

@@ -1,0 +1,85 @@
+<svg viewBox="-20 -20 860 364" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Bar chart of composite validation scores for the ten candidate genes, ranked highest to lowest: PLOD1 7.69, DSE 5.40, B4GALT7 5.40, AEBP1 5.29, TGFB1 5.22, SLC39A13 4.68, FKBP14 3.81, VWF 2.86, C1R 2.83, BCL2A1 2.78. SLC39A13, VWF, and C1R are marked independently corroborated by outside evidence; BCL2A1 is marked flagged weak.">
+  <style>
+    .bg { fill: #ffffff; }
+    .frame { stroke: #dcdfd8; }
+    .bar-candidate { fill: #5b6058; }
+    .bar-corroborated { fill: #2c7a64; }
+    .bar-weak { fill: #8c611f; }
+    .axis { stroke: #dcdfd8; }
+    .node-label { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 14px; font-weight: 600; fill: #14171b; }
+    .node-sub { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11px; fill: #5b6058; }
+    .value { font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace; font-size: 12px; fill: #14171b; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #1b2025; }
+      .frame { stroke: #2b3130; }
+      .bar-candidate { fill: #9aa39b; }
+      .bar-corroborated { fill: #5fbba0; }
+      .bar-weak { fill: #d9a75c; }
+      .axis { stroke: #2b3130; }
+      .node-label { fill: #eceee9; }
+      .node-sub { fill: #9aa39b; }
+      .value { fill: #eceee9; }
+    }
+  </style>
+  <rect x="-20" y="-20" width="860" height="364" rx="10" class="bg frame" stroke-width="1" />
+  <g>
+    <circle cx="8" cy="10" r="5" class="bar-corroborated" />
+    <text x="18" y="14" class="node-sub">Independently corroborated</text>
+    <circle cx="230" cy="10" r="5" class="bar-weak" />
+    <text x="240" y="14" class="node-sub">Flagged weak</text>
+    <circle cx="360" cy="10" r="5" class="bar-candidate" />
+    <text x="370" y="14" class="node-sub">Candidate</text>
+  </g>
+  <line x1="150" y1="28" x2="150" y2="318" class="axis" stroke-width="1" />
+  <g>
+    <rect x="150" y="39" width="600" height="18" rx="3" class="bar-candidate" />
+    <text x="4" y="52" class="node-label">PLOD1</text>
+    <text x="758" y="52" class="value">7.69</text>
+  </g>
+  <g>
+    <rect x="150" y="67" width="422" height="18" rx="3" class="bar-candidate" />
+    <text x="4" y="80" class="node-label">DSE</text>
+    <text x="580" y="80" class="value">5.40</text>
+  </g>
+  <g>
+    <rect x="150" y="95" width="422" height="18" rx="3" class="bar-candidate" />
+    <text x="4" y="108" class="node-label">B4GALT7</text>
+    <text x="580" y="108" class="value">5.40</text>
+  </g>
+  <g>
+    <rect x="150" y="123" width="413" height="18" rx="3" class="bar-candidate" />
+    <text x="4" y="136" class="node-label">AEBP1</text>
+    <text x="571" y="136" class="value">5.29</text>
+  </g>
+  <g>
+    <rect x="150" y="151" width="407" height="18" rx="3" class="bar-candidate" />
+    <text x="4" y="164" class="node-label">TGFB1</text>
+    <text x="565" y="164" class="value">5.22</text>
+  </g>
+  <g>
+    <rect x="150" y="179" width="365" height="18" rx="3" class="bar-corroborated" />
+    <text x="4" y="192" class="node-label">SLC39A13</text>
+    <text x="523" y="192" class="value">4.68</text>
+  </g>
+  <g>
+    <rect x="150" y="207" width="297" height="18" rx="3" class="bar-candidate" />
+    <text x="4" y="220" class="node-label">FKBP14</text>
+    <text x="455" y="220" class="value">3.81</text>
+  </g>
+  <g>
+    <rect x="150" y="235" width="223" height="18" rx="3" class="bar-corroborated" />
+    <text x="4" y="248" class="node-label">VWF</text>
+    <text x="381" y="248" class="value">2.86</text>
+  </g>
+  <g>
+    <rect x="150" y="263" width="221" height="18" rx="3" class="bar-corroborated" />
+    <text x="4" y="276" class="node-label">C1R</text>
+    <text x="379" y="276" class="value">2.83</text>
+  </g>
+  <g>
+    <rect x="150" y="291" width="217" height="18" rx="3" class="bar-weak" />
+    <text x="4" y="304" class="node-label">BCL2A1</text>
+    <text x="375" y="304" class="value">2.78</text>
+  </g>
+</svg>

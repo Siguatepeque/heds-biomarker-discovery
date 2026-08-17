@@ -1,5 +1,9 @@
 # hEDS Biomarker Discovery
 
+![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-2c7a64)
+[![Full write-up: live](https://img.shields.io/badge/full%20write--up-live-8c611f)](https://siguatepeque.github.io/heds-biomarker-discovery/)
+
 A pipeline that reads PubMed for a living. It mines the research literature on
 hypermobile Ehlers-Danlos Syndrome (hEDS) looking for genes that show up near the
 disease in the writing, without ever being studied in it directly. The output is a
@@ -8,6 +12,21 @@ A lead list.
 
 **Full write-up:** [siguatepeque.github.io/heds-biomarker-discovery](https://siguatepeque.github.io/heds-biomarker-discovery/)
 reads more like a normal article. This README is the developer-facing version.
+
+## Contents
+
+1. [The problem, in plain terms](#the-problem-in-plain-terms)
+2. [The theory](#the-theory)
+3. [How the robot works](#how-the-robot-works)
+4. [What we found](#what-we-found)
+5. [The real test](#the-real-test)
+6. [What's new here](#whats-new-here)
+7. [What backs this up](#what-backs-this-up)
+8. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
+9. [Hey please check this!](#hey-please-check-this)
+10. [What this is not](#what-this-is-not)
+11. [Running it](#running-it)
+12. [Does it actually work?](#does-it-actually-work)
 
 ## The problem, in plain terms
 
@@ -35,6 +54,8 @@ a paper connecting hEDS to C directly, then C is worth a look. All of this runs 
 public data. No lab access required, no patient data touched at any point.
 
 ## How the robot works
+
+![The pipeline: fetch, graph, discover, validate](docs/assets/pipeline-diagram.svg)
 
 1. **Fetch** (`fetch_literature.py`). Pulls hEDS and HSD specific papers from PubMed.
    I deliberately left out bare "Ehlers-Danlos syndrome" and other-subtype terms, so
@@ -65,6 +86,8 @@ public data. No lab access required, no patient data touched at any point.
 On the corpus I had while writing this (1,301 abstracts, 1,345 entities, 20,238
 co-occurrence edges), the pipeline correctly filed 24 genes as "already studied,"
 including COL3A1, COL6A3, SMAD3, and TNXB, and surfaced 10 candidates.
+
+![Composite score per candidate gene, PLOD1 highest at 7.69 down to BCL2A1 at 2.78](docs/assets/candidates-chart.svg)
 
 Topping the list is **PLOD1**, which defines kyphoscoliotic EDS. Most of the rest
 (AEBP1, DSE, B4GALT7, FKBP14) are similarly genes that define other EDS-spectrum
