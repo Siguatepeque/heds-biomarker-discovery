@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>hEDS Biomarker Discovery</title>
+<meta name="description" content="A literature-mining pipeline for hypermobile Ehlers-Danlos Syndrome: the theory, the method, the results, and a retrospective test of whether it actually works.">
+<style>
+  :root {
+    --paper: #f4f5f1;
+    --surface: #ffffff;
+    --ink: #14171b;
+    --muted: #5b6058;
+    --line: #dcdfd8;
+    --gold: #8c611f;
+    --gold-soft: #f1e6d2;
+    --green: #2c7a64;
+    --green-soft: #dcede7;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --paper: #14171b;
+      --surface: #1b2025;
+      --ink: #eceee9;
+      --muted: #9aa39b;
+      --line: #2b3130;
+      --gold: #d9a75c;
+      --gold-soft: #362d1c;
+      --green: #5fbba0;
+      --green-soft: #163229;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 18px;
+    line-height: 1.65;
+    margin: 0;
+    padding: 0 24px 120px;
+  }
+
+  .display {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Times New Roman", serif;
+  }
+
+  .mono {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  a { color: var(--green); text-decoration-thickness: 1px; }
+  a:hover { color: var(--gold); }
+
+  .prose { max-width: 660px; margin: 0 auto; }
+  .wide { max-width: 880px; margin: 0 auto; }
+
+  header.hero {
+    max-width: 660px;
+    margin: 96px auto 0;
+  }
+
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin: 0 0 20px;
+  }
+
+  h1.display {
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.18;
+    margin: 0 0 24px;
+    font-weight: 400;
+  }
+
+  p.dek {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+
+  nav.toc {
+    max-width: 660px;
+    margin: 48px auto 0;
+    padding: 20px 24px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    font-size: 0.92rem;
+  }
+
+  nav.toc p {
+    margin: 0 0 10px;
+    font-weight: 600;
+    color: var(--muted);
+    font-size: 0.78rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  nav.toc ol {
+    margin: 0;
+    padding-left: 1.2em;
+    columns: 2;
+    column-gap: 24px;
+  }
+
+  nav.toc li { margin-bottom: 6px; break-inside: avoid; }
+
+  section {
+    max-width: 660px;
+    margin: 76px auto 0;
+  }
+
+  section.wide-section { max-width: 880px; }
+
+  h2.display {
+    font-size: 1.7rem;
+    font-weight: 400;
+    margin: 0 0 24px;
+    text-wrap: balance;
+  }
+
+  h3.display {
+    font-size: 1.25rem;
+    font-weight: 600;
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    margin: 32px 0 12px;
+  }
+
+  p { margin: 0 0 20px; }
+  section > p:last-child, section > div:last-child { margin-bottom: 0; }
+
+  .pull {
+    border-left: 3px solid var(--gold);
+    padding: 6px 0 6px 24px;
+    margin: 36px 0;
+    font-family: Georgia, serif;
+    font-size: 1.15rem;
+    line-height: 1.6;
+    font-style: italic;
+  }
+
+  code {
+    font-family: ui-monospace, Consolas, monospace;
+    font-size: 0.87em;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  pre {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-size: 0.87rem;
+  }
+  pre code { background: none; border: none; padding: 0; }
+
+  ul, ol { padding-left: 1.3em; }
+  li { margin-bottom: 10px; }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    margin: 24px 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 20px;
+  }
+
+  .card .card-title { font-weight: 700; margin-bottom: 6px; }
+  .card .card-body { color: var(--muted); font-size: 0.95rem; }
+  .card a { font-size: 0.9rem; }
+
+  .wide-section > p.prose { max-width: 660px; margin: 0 auto 24px; }
+
+  /* diagrams */
+  figure.diagram {
+    max-width: 880px;
+    margin: 40px auto;
+  }
+  figure.diagram .frame {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 24px clamp(10px, 4vw, 36px);
+  }
+  figure.diagram svg { width: 100%; height: auto; display: block; }
+  figcaption {
+    font-size: 0.9rem;
+    color: var(--muted);
+    max-width: 660px;
+    margin: 16px auto 0;
+    line-height: 1.55;
+  }
+  .node-label { font-size: 14px; fill: var(--ink); font-weight: 600; }
+  .node-sub { font-size: 11px; fill: var(--muted); }
+  .edge-label { font-size: 11px; fill: var(--muted); }
+  .edge-thesis { font-size: 11px; fill: var(--gold); font-style: italic; }
+  .edge-proof { font-size: 11px; fill: var(--green); font-weight: 600; }
+  text.node-label.edge-thesis { fill: var(--gold); font-style: normal; font-size: 14px; }
+  text.node-label.edge-proof { fill: var(--green); font-size: 14px; }
+  .node-thesis-dot { fill: var(--gold); }
+  .node-proof-dot { fill: var(--green); }
+  .edge-arc-thesis { stroke: var(--gold); }
+  #arrow-gold path { fill: var(--gold); }
+  .step-box { fill: var(--surface); stroke: var(--line); }
+  .step-num { font-family: Georgia, serif; font-size: 20px; fill: var(--gold); }
+
+  /* results table */
+  .table-scroll {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    margin: 24px 0;
+  }
+  table.results { width: 100%; border-collapse: collapse; min-width: 640px; background: var(--surface); font-size: 0.9rem; }
+  table.results th {
+    text-align: left;
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+    white-space: nowrap;
+  }
+  table.results td { padding: 11px 12px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  table.results tr:last-child td { border-bottom: none; }
+  table.results tr.highlight td { background: var(--green-soft); }
+  .gene-cell { font-weight: 700; white-space: nowrap; }
+  .score-cell { text-align: right; }
+  .note-cell { color: var(--muted); font-size: 0.85rem; }
+  .note-cell.callout { color: var(--green); font-weight: 600; }
+  .note-cell.warn { color: var(--gold); font-weight: 600; }
+
+  /* check-this list */
+  .check-list { list-style: none; padding: 0; margin: 24px 0; }
+  .check-list li {
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    gap: 12px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .check-list li:first-child { border-top: 1px solid var(--line); }
+  .check-mark { color: var(--gold); font-family: Georgia, serif; font-size: 1.2rem; }
+  .check-body strong { display: block; margin-bottom: 3px; }
+  .check-body span { color: var(--muted); font-size: 0.93rem; }
+
+  .btn {
+    display: inline-block;
+    background: var(--ink);
+    color: var(--paper);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.92rem;
+    padding: 12px 22px;
+    border-radius: 5px;
+  }
+  .btn:hover { opacity: 0.85; color: var(--paper); }
+
+  footer.page-footer {
+    max-width: 660px;
+    margin: 100px auto 0;
+    padding-top: 28px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 0.85rem;
+  }
+
+  @media (max-width: 600px) {
+    nav.toc ol { columns: 1; }
+    body { font-size: 16.5px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <p class="eyebrow">Research notes &middot; hypermobile Ehlers-Danlos syndrome</p>
+  <h1 class="display">We built a robot to read hEDS research papers. Here is what happened.</h1>
+  <p class="dek">
+    Hypermobile Ehlers-Danlos Syndrome does not have a lab test. It is diagnosed by
+    checklist, and it has been that way for a long time. This page walks through an
+    attempt to do something different: point a program at the entire research
+    literature and let it notice connections nobody has written down yet. It covers
+    the idea behind it, how it actually works, what it found, and a retrospective test
+    of whether any of it is real. Including the parts where it was not, at first.
+  </p>
+</header>
+
+<nav class="toc">
+  <p>On this page</p>
+  <ol>
+    <li><a href="#problem">The problem</a></li>
+    <li><a href="#idea">The idea</a></li>
+    <li><a href="#how">How the robot works</a></li>
+    <li><a href="#found">What we found</a></li>
+    <li><a href="#test">The real test</a></li>
+    <li><a href="#new">What is new here</a></li>
+    <li><a href="#backs-up">What backs this up</a></li>
+    <li><a href="#not-do">What we did not do</a></li>
+    <li><a href="#check">Hey, please check this</a></li>
+    <li><a href="#not">What this is not</a></li>
+    <li><a href="#try">Try it yourself</a></li>
+  </ol>
+</nav>
+
+<section id="problem">
+  <h2 class="display">The problem, in plain terms</h2>
+  <p>
+    hEDS is the one Ehlers-Danlos subtype nobody has a lab test for. You get
+    diagnosed by checklist: how far your joints bend on the Beighton scale, which of
+    a long list of other symptoms you have, whether it runs in your family, and
+    whether a doctor has ruled out everything else it could be instead. That is the
+    2017 international diagnostic standard, and it is still the standard today.
+  </p>
+  <p>
+    Real genetic leads have started showing up in just the last couple of years.
+    We will get to those. But as of right now, nothing has turned into an actual
+    test.
+  </p>
+</section>
+
+<section id="idea">
+  <h2 class="display">The idea</h2>
+  <p>
+    We did not want to build the obvious thing: a classifier trained on symptom
+    checklists, which just re-learns the diagnostic criteria and calls it a
+    "biomarker." Instead we went after something nobody seems to have tried for this
+    disease. It is called literature-based discovery, and it is an old idea.
+  </p>
+  <p>
+    In the 1980s, a researcher named Don Swanson noticed something odd while reading
+    two completely separate piles of medical papers. One pile, about Raynaud's
+    disease, kept mentioning blood viscosity. The other pile, about fish oil,
+    kept mentioning the exact same thing. Nobody had ever written a paper connecting
+    fish oil to Raynaud's directly. But the pattern was sitting right there, split
+    across two literatures that never cited each other. Swanson published the
+    connection as a hypothesis. Years later, clinical trials confirmed it.
+  </p>
+  <p>
+    That is the whole idea, generalized. If a disease A is linked to some concept B
+    in the literature, and B is linked to a gene C in a totally different set of
+    papers, but nobody has ever written a paper connecting A to C directly, then C is
+    worth a look. It costs nothing to check. All of this runs on free, public data.
+    No lab access required, no patient data touched at any point.
+  </p>
+</section>
+
+<section id="how">
+  <h2 class="display">How the robot actually works</h2>
+  <p>
+    Four steps, each one a small Python script, chained together by a single command.
+  </p>
+
+  <figure class="diagram">
+    <div class="frame">
+      <svg viewBox="0 0 820 170" role="img" aria-label="Four step pipeline: fetch literature and tag entities with PubTator3, build a co-occurrence graph, run ABC-model discovery to find candidate genes, then validate candidates against STRING, GTEx, and ClinVar.">
+        <defs>
+          <marker id="arrow-flow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="currentColor" />
+          </marker>
+        </defs>
+        <g>
+          <rect x="10" y="40" width="170" height="70" rx="6" class="step-box" />
+          <text x="95" y="65" text-anchor="middle" class="step-num">1</text>
+          <text x="95" y="90" text-anchor="middle" class="node-label">Fetch</text>
+          <text x="95" y="106" text-anchor="middle" class="node-sub">PubMed + PubTator3</text>
+        </g>
+        <line x1="180" y1="75" x2="222" y2="75" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrow-flow)" />
+        <g>
+          <rect x="225" y="40" width="170" height="70" rx="6" class="step-box" />
+          <text x="310" y="65" text-anchor="middle" class="step-num">2</text>
+          <text x="310" y="90" text-anchor="middle" class="node-label">Graph</text>
+          <text x="310" y="106" text-anchor="middle" class="node-sub">co-occurrence + PMI</text>
+        </g>
+        <line x1="395" y1="75" x2="437" y2="75" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrow-flow)" />
+        <g>
+          <rect x="440" y="40" width="170" height="70" rx="6" class="step-box" />
+          <text x="525" y="65" text-anchor="middle" class="step-num">3</text>
+          <text x="525" y="90" text-anchor="middle" class="node-label">Discover</text>
+          <text x="525" y="106" text-anchor="middle" class="node-sub">ABC-model ranking</text>
+        </g>
+        <line x1="610" y1="75" x2="652" y2="75" stroke="currentColor" stroke-width="1.4" marker-end="url(#arrow-flow)" />
+        <g>
+          <rect x="655" y="40" width="155" height="70" rx="6" class="step-box" />
+          <text x="732" y="65" text-anchor="middle" class="step-num">4</text>
+          <text x="732" y="90" text-anchor="middle" class="node-label">Validate</text>
+          <text x="732" y="106" text-anchor="middle" class="node-sub">STRING, GTEx, ClinVar</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>The whole pipeline, start to finish. Each box is one script in the repository.</figcaption>
+  </figure>
+
+  <h3 class="display">1. Fetch</h3>
+  <p>
+    Pulls hEDS and HSD specific papers from PubMed. We deliberately left out bare
+    "Ehlers-Danlos syndrome" and other subtype terms, so genes belonging to classical
+    or vascular EDS do not sneak into the corpus. Each abstract's genes, diseases, and
+    chemicals get tagged automatically by NCBI's PubTator3 service, so we did not have
+    to write our own entity recognizer.
+  </p>
+
+  <h3 class="display">2. Graph</h3>
+  <p>
+    Turns all of that into a co-occurrence graph. Two concepts get an edge if they
+    show up in the same abstract, weighted by how often, plus a score for how
+    surprising that co-occurrence actually is.
+  </p>
+
+  <h3 class="display">3. Discover</h3>
+  <p>
+    The actual Swanson-style step. Anything directly co-mentioned with hEDS in the
+    same abstract is filed as "already studied" and set aside. What is left, genes
+    reachable only through a shared bridge concept and never directly, gets ranked by
+    a common-neighbors score that discounts generic bridge terms (things like "pain,"
+    which connect to almost everything in a medical corpus) more than specific ones.
+    This distinction turned out to matter a great deal, and it is the exact thing that
+    went wrong twice during development. More on that below.
+  </p>
+
+  <h3 class="display">4. Validate</h3>
+  <p>
+    Before anything makes the final list, it gets checked against three independent
+    public sources: STRING, to see if it physically interacts with a known
+    hEDS-relevant protein. GTEx, to see if it is actually expressed in connective
+    tissue. ClinVar, to see if it has any documented human variant record at all.
+  </p>
+</section>
+
+<section id="found">
+  <h2 class="display">What we found</h2>
+  <p>
+    On the corpus we had while writing this (1,301 abstracts, 1,345 entities, 20,238
+    co-occurrence edges), the pipeline correctly filed 24 genes as "already studied,"
+    including COL3A1, COL6A3, SMAD3, and TNXB, and surfaced 10 candidates.
+  </p>
+  <div class="table-scroll">
+    <table class="results">
+      <thead>
+        <tr><th>Gene</th><th class="score-cell">Score</th><th>Why it is here</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="gene-cell mono">PLOD1</td><td class="score-cell mono">5.69</td><td class="note-cell">Defines kyphoscoliotic EDS</td></tr>
+        <tr><td class="gene-cell mono">DSE</td><td class="score-cell mono">3.40</td><td class="note-cell">Defines musculocontractural EDS</td></tr>
+        <tr><td class="gene-cell mono">B4GALT7</td><td class="score-cell mono">3.40</td><td class="note-cell">Defines spondylodysplastic EDS</td></tr>
+        <tr><td class="gene-cell mono">AEBP1</td><td class="score-cell mono">4.29</td><td class="note-cell">Defines classical-like EDS</td></tr>
+        <tr><td class="gene-cell mono">TGFB1</td><td class="score-cell mono">4.22</td><td class="note-cell">The TGF-beta ligand itself</td></tr>
+        <tr class="highlight"><td class="gene-cell mono">SLC39A13</td><td class="score-cell mono">3.68</td><td class="note-cell callout">The gene from the retrospective test below</td></tr>
+        <tr><td class="gene-cell mono">FKBP14</td><td class="score-cell mono">1.81</td><td class="note-cell">Defines kyphoscoliotic EDS, type 2</td></tr>
+        <tr><td class="gene-cell mono">VWF</td><td class="score-cell mono">1.86</td><td class="note-cell callout">Real bridge via "bleedings," a documented hEDS symptom</td></tr>
+        <tr><td class="gene-cell mono">C1R</td><td class="score-cell mono">1.83</td><td class="note-cell callout">Matches an independent 2025-26 proteomics finding</td></tr>
+        <tr><td class="gene-cell mono">BCL2A1</td><td class="score-cell mono">2.43</td><td class="note-cell warn">Weak. Low expression, likely noise</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Topping the list is PLOD1, which defines kyphoscoliotic EDS. Most of the rest,
+    AEBP1, DSE, B4GALT7, and FKBP14, are similarly genes that define other
+    EDS-spectrum disorders. That is a reasonable "maybe this whole gene family
+    matters here too" hypothesis, not individually shocking.
+  </p>
+  <p>
+    Three entries deserve individual attention, for different reasons.
+  </p>
+  <p>
+    <strong>C1R (complement C1r)</strong> independently lines up with a 2025 to 2026
+    proteomics paper that found complement-cascade proteins showing up differently in
+    hEDS patients' blood. We did not point the pipeline at it. It came out of the
+    graph structure on its own, and it happens to match a completely separate wet-lab
+    finding.
+  </p>
+  <p>
+    <strong>VWF (von Willebrand factor)</strong> reaches the list through a real,
+    coherent bridge concept, a symptom term meaning "bleedings" that shows up in 18
+    real hEDS papers. Bleeding and bruising tendency is a documented hEDS comorbidity,
+    and VWF is the gene behind a bleeding disorder. It has not been studied in hEDS by
+    name yet, but the shape of the evidence is the same as SLC39A13 before anyone
+    confirmed it.
+  </p>
+  <p>
+    <strong>BCL2A1</strong>, on the other hand, is probably noise, and we are saying
+    so plainly rather than hiding it. Its connective-tissue expression is negligible,
+    it is reached only through a chain of classical (not hypermobile) EDS papers, and
+    there is no obvious biological reason to expect it. We left it in the output
+    because hiding a weak result is worse than showing one clearly labeled as weak.
+  </p>
+</section>
+
+<section id="test">
+  <h2 class="display">The real test</h2>
+  <p>
+    A shortlist is a claim about the future. It says: these are worth a second look.
+    The only honest way to test a claim like that is to go back in time and see if it
+    would have held up. So we built a second script, <code>backtest.py</code>, that
+    reruns the exact same pipeline using only literature published before a chosen
+    cutoff year, and checks whether genes that real 2024 to 2025 hEDS genetics later
+    confirmed were already showing up as candidates before that confirmation existed.
+  </p>
+
+  <figure class="diagram">
+    <div class="frame">
+      <svg viewBox="0 0 760 210" role="img" aria-label="Timeline showing SLC39A13 named in 2020 and 2021 for a different rare EDS subtype. Using literature only through 2021, an indirect literature bridge to hEDS already clears the pipeline's detection threshold, flagging SLC39A13 as a candidate. In September 2025, an independent GWAS study of 1800 patients found genome wide significant signal at SLC39A13, more than three and a half years later. As of today, only the GWAS paper itself directly links hEDS and SLC39A13 in the literature, so a second independent paper has not caught up yet.">
+        <defs>
+          <marker id="arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" />
+          </marker>
+        </defs>
+        <line x1="60" y1="140" x2="700" y2="140" stroke="currentColor" stroke-width="1" opacity="0.35" />
+        <path d="M 330 100 C 330 38, 520 38, 520 100" fill="none" class="edge-arc-thesis" stroke-width="1.3" marker-end="url(#arrow-gold)" />
+        <text x="425" y="28" text-anchor="middle" class="edge-thesis">3.5+ years ahead of the field</text>
+        <circle cx="100" cy="140" r="5" fill="currentColor" opacity="0.6" />
+        <text x="100" y="120" text-anchor="middle" class="node-label">2020-21</text>
+        <text x="100" y="163" text-anchor="middle" class="node-sub">SLC39A13 named for a</text>
+        <text x="100" y="178" text-anchor="middle" class="node-sub">different, rare EDS subtype</text>
+        <circle cx="330" cy="140" r="7" class="node-thesis-dot" />
+        <text x="330" y="120" text-anchor="middle" class="node-label edge-thesis">By 2022</text>
+        <text x="330" y="163" text-anchor="middle" class="node-sub">Literature bridge already</text>
+        <text x="330" y="178" text-anchor="middle" class="node-sub">clears threshold, pipeline flags it</text>
+        <circle cx="520" cy="140" r="7" class="node-proof-dot" />
+        <text x="520" y="120" text-anchor="middle" class="node-label edge-proof">Sep 2025</text>
+        <text x="520" y="163" text-anchor="middle" class="node-sub">Independent GWAS finds a</text>
+        <text x="520" y="178" text-anchor="middle" class="node-sub">genome-wide-significant hit</text>
+        <circle cx="660" cy="140" r="5" fill="currentColor" opacity="0.6" />
+        <text x="660" y="120" text-anchor="middle" class="node-label">Today</text>
+        <text x="660" y="163" text-anchor="middle" class="node-sub">Only the GWAS paper itself</text>
+        <text x="660" y="178" text-anchor="middle" class="node-sub">links them, still not "established"</text>
+      </svg>
+    </div>
+    <figcaption>
+      SLC39A13, traced through time. No paper published before 2022 puts hEDS and
+      SLC39A13 in the same abstract. This pipeline, run on pre-2022 literature alone,
+      found the indirect link anyway.
+    </figcaption>
+  </figure>
+
+  <p>
+    Using only papers published through 2021, more than three and a half years before
+    the first hEDS GWAS meta-analysis went up on medRxiv in September 2025, the
+    pipeline flags <strong>SLC39A13</strong> as a candidate through a purely indirect
+    literature path. In September 2025, an independent GWAS meta-analysis of about
+    1,800 cases and 5,000 controls, a completely different method entirely,
+    genotyping, not literature, found genome-wide significant signal at that exact
+    gene.
+  </p>
+
+  <p>
+    We did not trust that number the first time we saw it, and we do not think anyone
+    should trust a result like this without trying to break it first.
+  </p>
+
+  <h3 class="display">Round one</h3>
+  <p>
+    An unrelated exploratory run, loosening the co-occurrence threshold just to see
+    what a noisier pass surfaces, turned up KLK15, another 2024 hEDS gene, as a weak
+    signal. Tracing it back led to an actual paper: "KLK15 alters connective tissues
+    in hypermobile Ehlers-Danlos syndrome," published in iScience in August 2025,
+    which explicitly studies KLK15 in hEDS by name. Our seed detection had been
+    matching against the graph's single stored display name for each entity, and
+    PubTator had normalized this paper's very specific "hypermobile Ehlers-Danlos
+    syndrome" mention down to the generic Ehlers-Danlos syndrome ID shared by every
+    subtype, so the match never fired. We fixed it by scanning each document's own raw
+    text directly instead of trusting one stored name per concept.
+  </p>
+
+  <h3 class="display">Round two</h3>
+  <p>
+    Re-running the SLC39A13 backtest after that fix, it initially showed as "already
+    directly studied" by 2022, which would have meant no prediction case at all.
+    Digging into why turned up two more bugs in our own pattern list. One pattern,
+    meant to catch the pre-2017 name for hEDS, was a naive substring match that also
+    fired on "Ehlers-Danlos syndrome, spondylodysplastic form type 3," a completely
+    different subtype, the exact one SLC39A13 is already known to cause. Separately,
+    we had included "generalized joint hypermobility" as a seed term, but it turns
+    out to be a clinical sign, not a diagnosis. We found a real paper studying it as a
+    population explicitly distinct from EDS. We fixed both and added tests so neither
+    can quietly come back.
+  </p>
+
+  <div class="pull">
+    Only after those two rounds of fixes did we trust the result enough to publish
+    it. No document before 2022 co-mentions an hEDS seed term and SLC39A13 in the same
+    abstract. Neither of the two papers that discuss SLC39A13 at all, from 2020 and
+    2021, is itself a seed document. The connection runs through several
+    independently weak literature bridges, most substantially a shared "juvenile
+    connective tissue diseases" concept appearing in 54 real hEDS papers. We
+    hand-verified the score's arithmetic against the raw graph, not just the code
+    path.
+  </div>
+
+  <p>
+    One more honest thing, checked while writing this. SLC39A13 is still classified
+    as a candidate today, not yet "already studied," even eleven months after the
+    GWAS. Exactly one document in the whole corpus directly co-mentions hEDS and
+    SLC39A13: the GWAS preprint itself. No second paper has echoed the connection yet,
+    so it has not cleared this method's own two-paper bar for "established." That is
+    not a weakness in the method. It is a real, separate observation: the literature
+    index can lag a genuine discovery by the better part of a year even after
+    publication, which is exactly the kind of gap a tool like this is built to notice.
+  </p>
+
+  <p>
+    Worth being precise about the boundary here too. SLC39A13 was not a total unknown
+    going in. It is the established cause of a different, rare EDS subtype, which is
+    exactly why it had some indirect literature trail to follow. ACKR3, the GWAS's
+    other major locus, has no connective-tissue literature footprint at all, at any
+    cutoff we tested including today, and the pipeline correctly has nothing to say
+    about it. KLK15 has exactly one paper with a matched disease mention in the entire
+    corpus, and one paper is not enough independent evidence. This method gets ahead
+    of the field when a candidate has some textual trail, however thin. It has
+    nothing to offer for a genuinely de novo finding with no trace at all, and it is
+    honest about the difference.
+  </p>
+</section>
+
+<section id="new">
+  <h2 class="display">What is new here</h2>
+  <p>
+    Before writing any code, we checked whether this had already been done. As far as
+    we could find, nobody has pointed literature-based discovery or knowledge-graph
+    mining at hEDS before. Not even at neighboring diseases with a similar
+    "diagnosis of exclusion" problem, like long COVID or fibromyalgia. This angle, at
+    least, seems to be new.
+  </p>
+</section>
+
+<section id="backs-up" class="wide-section">
+  <h2 class="display">What backs this up</h2>
+  <p class="prose">
+    We did not want to build this in a vacuum, so before writing any code we spent a
+    while figuring out what had already been tried. It turns out 2024 to 2025 was a
+    genuinely big couple of years for hEDS genetics, and the reference gene sets built
+    into the validation step come from that work, not from other EDS subtypes' better
+    known genes.
+  </p>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">KLK gene family, especially KLK15</div>
+      <div class="card-body">A recurrent variant turned up in whole exome sequencing of 200 hEDS patients, and it reproduces connective tissue defects when reintroduced in mice.</div>
+      <a href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11213194/">Norris Lab, iScience 2025</a>
+    </div>
+    <div class="card">
+      <div class="card-title">ACKR3 and SLC39A13</div>
+      <div class="card-body">The first hEDS GWAS meta-analysis, pointing toward a neuroimmune and stromal story rather than a single collagen gene.</div>
+      <a href="https://www.medrxiv.org/content/10.1101/2025.09.19.25336146v1">Petrucci-Nelson et al., medRxiv 2025</a>
+    </div>
+    <div class="card">
+      <div class="card-title">MIA3</div>
+      <div class="card-body">Another 2024 to 2025 candidate gene, still unresolved.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">TNXB, partial deficiency</div>
+      <div class="card-body">The oldest lead in this space, though it only explains about one percent of cases, and serum tenascin-X testing failed as a screening tool when people actually tried it. Kept in our reference set as a weak legacy check.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">A plasma ECM-fragmentation signature</div>
+      <div class="card-body">Fibronectin, collagen-I, and tenascin fragments. Probably the closest thing to an actual proposed biomarker that exists right now, still unvalidated.</div>
+      <a href="https://pubmed.ncbi.nlm.nih.gov/39225014/">Ritelli et al.</a>
+    </div>
+    <div class="card">
+      <div class="card-title">The HEDGE Study</div>
+      <div class="card-body">The Ehlers-Danlos Society's own large scale sequencing effort, covering 1,000 patients, still producing results.</div>
+    </div>
+  </div>
+</section>
+
+<section id="not-do">
+  <h2 class="display">What we did not do, and why</h2>
+  <h3 class="display">Clustering patients into subtypes by symptoms</h3>
+  <p>
+    Already done, and done well. Mayo Clinic ran K-means and UMAP on more than 2,100
+    real patients and published real subtypes. We do not have that kind of data, and
+    running the same analysis on something worse would not add anything.
+  </p>
+  <h3 class="display">Wearables and video-based biomarkers</h3>
+  <p>
+    Genuinely exciting research: AI-scored hypermobility from video, wearable
+    heart-rate-variability tracking. Every dataset behind it is available on request
+    only, not public. That confirmed literature mining was the right lane for a
+    project built entirely on public data.
+  </p>
+  <h3 class="display">Swapping in SemMedDB instead of raw co-occurrence</h3>
+  <p>
+    SemMedDB gives semantic relationships instead of "these two things appeared near
+    each other," which sounds strictly better. It was deprecated in December 2024 and
+    has not been updated since, so it would miss both the 2025 GWAS paper and the
+    2024 KLK15 finding above, and it needs a UMLS license to even access. Not worth
+    the tradeoff for something meant to stay current and easy to run.
+  </p>
+</section>
+
+<section id="check">
+  <h2 class="display">Hey, please check this</h2>
+  <p>
+    We would rather tell you exactly what to be skeptical of than let you find it
+    yourself.
+  </p>
+  <ul class="check-list">
+    <li>
+      <span class="check-mark">&#9998;</span>
+      <span class="check-body">
+        <strong>The VWF finding is new and has only had one pass of scrutiny.</strong>
+        <span>The bridge concept looks real, but it has not gone through the same two rounds of adversarial re-checking that SLC39A13 did. Run the backtest and the graph queries yourself before repeating this one as settled.</span>
+      </span>
+    </li>
+    <li>
+      <span class="check-mark">&#9998;</span>
+      <span class="check-body">
+        <strong>BCL2A1 is flagged weak on purpose.</strong>
+        <span>We left it in the shortlist instead of quietly dropping it. Read it as the pipeline's noise floor, not as a finding.</span>
+      </span>
+    </li>
+    <li>
+      <span class="check-mark">&#9998;</span>
+      <span class="check-body">
+        <strong>The seed-matching patterns are a hand-built list.</strong>
+        <span>We found and fixed two false positives in that exact list while building this project. There could be a third we have not found. If you extend the search scope, check any new pattern against a real, messy abstract before trusting the output.</span>
+      </span>
+    </li>
+    <li>
+      <span class="check-mark">&#9998;</span>
+      <span class="check-body">
+        <strong>The "already studied" bucket depends on PubTator3's tagging being right.</strong>
+        <span>It mostly is, but automated tagging makes mistakes, and we have not manually audited every one of the 24 genes in that bucket.</span>
+      </span>
+    </li>
+    <li>
+      <span class="check-mark">&#9998;</span>
+      <span class="check-body">
+        <strong>Run the tests before trusting a change.</strong>
+        <span>They cover the exact logic that has actually broken before. If you touch the discovery step, run them first.</span>
+      </span>
+    </li>
+  </ul>
+</section>
+
+<section id="not">
+  <h2 class="display">What this is not</h2>
+  <p>
+    This is a hypothesis-generating research tool, not a diagnostic instrument. There
+    is no confirmed diagnostic biomarker for hEDS in the published literature. Not
+    from this project, not from anyone, not yet. Nothing here should be used to
+    include, exclude, or otherwise influence an actual diagnosis. At best, a
+    candidate on this list is a starting point for someone with a lab to look closer.
+  </p>
+</section>
+
+<section id="try">
+  <h2 class="display">Try it yourself</h2>
+  <p>
+    Everything here runs on free, public APIs. No account, no key, no patient data.
+  </p>
+  <pre><code>python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+
+python pipeline.py --top-n 20
+python backtest.py --cutoffs 2019 2020 2021 2022 2023 2024 2025 2026</code></pre>
+  <p>
+    Most of the runtime is just being polite to free APIs, about one request per
+    second, not actual computation. The full source, the tests, the raw results, and
+    the exact evidence trail behind the retrospective test are all in the repository.
+  </p>
+  <p>
+    <a class="btn" href="https://github.com/Siguatepeque/heds-biomarker-discovery">View the code on GitHub</a>
+  </p>
+</section>
+
+<footer class="page-footer">
+  Hypothesis-generating research tool, not a diagnostic instrument. No confirmed
+  diagnostic biomarker for hEDS exists in the published literature today.
+</footer>
+
+</body>
+</html>
