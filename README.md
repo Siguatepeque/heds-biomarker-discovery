@@ -118,13 +118,51 @@ Other flags: `--retmax` (how many PubMed results to pull), `--min-weight` (how m
 co-occurring abstracts before an edge counts), `--max-bridge-degree` (the hub-node
 cutoff), `--top-n` (shortlist size).
 
-## What it actually found
+## The actual test: would this have gotten ahead of the field?
+
+A shortlist is a claim about the future — "these are worth a second look." The only
+honest way to test that claim is to go back in time. `backtest.py` reruns the exact
+same pipeline using only literature published before a chosen cutoff year (the cached
+PubTator3 documents each carry their own publication date, so this needs no new
+network calls), and checks whether genes that real 2024-2025 hEDS genetics later
+confirmed were already showing up as candidates — before that confirmation existed.
+
+```
+python backtest.py --cutoffs 2020 2022 2023 2024 2025
+```
+
+**The result**: using only papers published through 2024 — strictly before the first
+hEDS GWAS meta-analysis went up on medRxiv (19 Sept 2025) — the pipeline flags
+**SLC39A13** as a candidate. No paper in that pre-2025 corpus ever mentions hEDS/HSD and
+SLC39A13 in the same abstract; I checked directly. The connection is entirely indirect,
+through a shared "juvenile connective tissue diseases" bridge concept whose link to the
+hEDS/HSD seed term crossed the co-occurrence threshold specifically in papers dated
+2024. Then, in September 2025, an independent GWAS meta-analysis (~1,800 cases, ~5,000
+controls, a completely different method — genotyping, not literature) found
+genome-wide-significant signal at that exact gene.
+
+Worth being precise about what this does and doesn't show. SLC39A13 wasn't a total
+unknown going in — it's the established cause of a separate, rare, recessive EDS
+subtype (spondylocheirodysplastic EDS), and that's exactly why it had enough of an
+indirect literature trail for the method to reach it. ACKR3, the GWAS's other major
+locus, has essentially no connective-tissue literature footprint before 2025 — it's
+absent from the corpus at every cutoff I tested — and the pipeline correctly has
+nothing to say about it. That's the honest boundary here: this method can get ahead of
+the field when a candidate has *any* indirect textual trail to follow, and it has
+nothing to offer for a genuinely de novo finding with no prior trace at all. SLC39A13
+is the case where the trail existed, and following it landed on the right answer
+months early. Full mechanism, exact edge weights, and sources are in
+`results/backtest.txt`.
+
+## What it actually found (the full shortlist)
 
 On the corpus I had when writing this (1,301 abstracts, 1,345 entities, 20,238
-co-occurrence edges), the pipeline found 2 clean hEDS/HSD seed terms and correctly
-filed 18 genes as "already studied" — including **SLC39A13** and **TNXB**, both real
-hEDS-relevant genes. That's the sanity check working: the pipeline knows what's already
-known.
+co-occurrence edges — i.e. everything through 2026, not the pre-2025 backtest slice
+above), the pipeline found 2 clean hEDS/HSD seed terms and correctly filed 18 genes as
+"already studied" — including **SLC39A13** and **TNXB**. Notice that's a change from
+the backtest: SLC39A13 has moved from "indirect candidate" to "directly studied" as
+2025's papers actually caught up to it. That's not a contradiction, it's the point —
+the field closed the gap this pipeline flagged.
 
 12 candidates made the final shortlist, topped by **COL3A1** — the gene that defines
 vascular EDS. That's not a surprise, biologically; it's a close nomenclature-and-
@@ -154,6 +192,9 @@ itself out as PubTator3 catches up and this gets re-run down the line.
 - `tests/test_build_graph.py` is a small synthetic-graph test that checks the core
   logic actually separates "directly studied" from "implied but never studied" —
   no network required. Run it with `venv\Scripts\python tests\test_build_graph.py`.
+- `tests/test_backtest.py` checks the date-filtering logic behind the retrospective
+  validation above — the one piece of that script not already covered by the core
+  discovery test.
 - On real output, the sanity check is: known hEDS-relevant genes (KLK15, ACKR3,
   SLC39A13, TNXB) should land in "already studied," not the shortlist. If one of them
   ever shows up as a "candidate," that's either a corpus-timing issue or something
