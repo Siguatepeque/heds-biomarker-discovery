@@ -37,7 +37,7 @@ def main():
 
     print("Running ABC-model discovery...")
     long_list, already_studied = discover(
-        graph, min_weight=args.min_weight, max_bridge_degree=args.max_bridge_degree
+        graph, documents, min_weight=args.min_weight, max_bridge_degree=args.max_bridge_degree
     )
     print(f"  {len(long_list)} candidates, {len(already_studied)} already-studied genes excluded")
 

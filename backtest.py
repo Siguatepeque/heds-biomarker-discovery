@@ -11,7 +11,7 @@ import glob
 import json
 
 from build_graph import build_graph
-from discover_candidates import discover, seed_nodes
+from discover_candidates import discover, seed_documents
 
 # The genes real 2024-2025 hEDS research confirmed. node_id uses PubTator's own
 # Entrez Gene ID, resolved once via NCBI esearch (db=gene) - see README for citations.
@@ -47,12 +47,11 @@ def filter_before(documents, cutoff_year):
 def run_cutoff(documents, cutoff_year, min_weight=2, max_bridge_degree=500):
     subset = filter_before(documents, cutoff_year)
     graph = build_graph(subset)
-    seeds = seed_nodes(graph)
-    if not seeds:
+    if not seed_documents(subset):
         return subset, graph, None, None
 
     long_list, already_studied = discover(
-        graph, min_weight=min_weight, max_bridge_degree=max_bridge_degree, top_n=len(graph)
+        graph, subset, min_weight=min_weight, max_bridge_degree=max_bridge_degree, top_n=len(graph)
     )
     return subset, graph, long_list, already_studied
 
@@ -61,7 +60,7 @@ def report(cutoff_year, subset, graph, long_list, already_studied):
     print(f"\n=== Cutoff: papers before {cutoff_year} ===")
     print(f"  {len(subset)} documents, {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
     if long_list is None:
-        print("  No hEDS/HSD seed nodes in this subset - too little corpus yet.")
+        print("  No hEDS/HSD seed mentions in this subset - too little corpus yet.")
         return
 
     candidate_ids = set(long_list["node_id"]) if len(long_list) else set()

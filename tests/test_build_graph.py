@@ -8,7 +8,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from build_graph import build_graph
-from discover_candidates import discover
+from discover_candidates import discover, _is_seed_mention
 
 
 def _doc(pmid, entities):
@@ -44,8 +44,9 @@ def build_fixture():
 
 
 def main():
-    graph = build_graph(build_fixture())
-    long_list, already_studied = discover(graph, min_weight=2, max_bridge_degree=500, top_n=50)
+    documents = build_fixture()
+    graph = build_graph(documents)
+    long_list, already_studied = discover(graph, documents, min_weight=2, max_bridge_degree=500, top_n=50)
 
     candidate_ids = set(long_list["node_id"])
 
@@ -58,6 +59,16 @@ def main():
 
     assert "Gene:300" not in candidate_ids, "unconnected gene must not appear as a candidate"
     assert "Gene:300" not in already_studied, "unconnected gene must not appear as already-studied"
+
+    # Regression cases: two real false positives found during development, where a
+    # DIFFERENT EDS-spectrum condition's name contains an hEDS pattern as a literal
+    # substring, or a shared clinical sign gets mistaken for a seed diagnosis.
+    assert not _is_seed_mention("Ehlers-Danlos syndrome, spondylodysplastic form type 3"), \
+        "a different EDS subtype must not match just because its name contains 'type 3'"
+    assert not _is_seed_mention("generalized joint hypermobility"), \
+        "a clinical sign shared with non-hEDS populations must not count as a seed diagnosis"
+    assert _is_seed_mention("hypermobile Ehlers-Danlos syndrome"), \
+        "the actual condition must still match"
 
     print("All checks passed.")
 

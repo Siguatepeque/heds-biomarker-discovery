@@ -128,64 +128,86 @@ network calls), and checks whether genes that real 2024-2025 hEDS genetics later
 confirmed were already showing up as candidates — before that confirmation existed.
 
 ```
-python backtest.py --cutoffs 2020 2022 2023 2024 2025
+python backtest.py --cutoffs 2019 2020 2021 2022 2023 2024 2025 2026
 ```
 
-**The result**: using only papers published through 2024 — strictly before the first
-hEDS GWAS meta-analysis went up on medRxiv (19 Sept 2025) — the pipeline flags
-**SLC39A13** as a candidate. No paper in that pre-2025 corpus ever mentions hEDS/HSD and
-SLC39A13 in the same abstract; I checked directly. The connection is entirely indirect,
-through a shared "juvenile connective tissue diseases" bridge concept whose link to the
-hEDS/HSD seed term crossed the co-occurrence threshold specifically in papers dated
-2024. Then, in September 2025, an independent GWAS meta-analysis (~1,800 cases, ~5,000
+**The result**: using only papers published through 2021 — more than three and a half
+years before the first hEDS GWAS meta-analysis went up on medRxiv (19 Sept 2025) —
+the pipeline flags **SLC39A13** as a candidate, through a purely indirect literature
+path. In September 2025, an independent GWAS meta-analysis (~1,800 cases, ~5,000
 controls, a completely different method — genotyping, not literature) found
 genome-wide-significant signal at that exact gene.
 
-Worth being precise about what this does and doesn't show. SLC39A13 wasn't a total
-unknown going in — it's the established cause of a separate, rare, recessive EDS
-subtype (spondylocheirodysplastic EDS), and that's exactly why it had enough of an
-indirect literature trail for the method to reach it. ACKR3, the GWAS's other major
-locus, has essentially no connective-tissue literature footprint before 2025 — it's
-absent from the corpus at every cutoff I tested — and the pipeline correctly has
-nothing to say about it. That's the honest boundary here: this method can get ahead of
-the field when a candidate has *any* indirect textual trail to follow, and it has
-nothing to offer for a genuinely de novo finding with no prior trace at all. SLC39A13
-is the case where the trail existed, and following it landed on the right answer
-months early. Full mechanism, exact edge weights, and sources are in
-`results/backtest.txt`.
+I don't just want to report that number — I want to say how I got to trust it, because
+I didn't at first. This result went through two rounds of me trying to break it:
 
-## What it actually found (the full shortlist)
+**Round 1.** An unrelated exploratory run (loosening the co-occurrence threshold to see
+what a noisier pass surfaces) turned up KLK15 — another 2024 hEDS gene — as a weak
+signal. Tracing it back led to an actual paper, "KLK15 alters connective tissues in
+hypermobile Ehlers-Danlos syndrome" (iScience, Aug 2025), which explicitly studies
+KLK15 in hEDS by name. But my pipeline's seed detection had been matching against the
+graph's single stored display name per entity ID — and PubTator had normalized this
+paper's very specific "hypermobile Ehlers-Danlos syndrome" mention down to the generic
+Ehlers-Danlos syndrome ID shared by every subtype, so the match never fired. Fix: seed
+detection now scans each document's own raw annotation text directly, not an
+aggregated per-ID name that happens to be whichever text was recorded first.
+
+**Round 2.** Re-running the SLC39A13 backtest after that fix, it initially showed as
+"already directly studied" by 2022 — which would have meant no prediction case at all.
+Digging into why turned up two bugs in my own seed-pattern list: my "type 3" pattern
+(meant to catch the pre-2017 name for hEDS) was a naive substring match that also fired
+on "Ehlers-Danlos syndrome, **spondylodysplastic** form type 3" — a completely
+different subtype, the one SLC39A13 is actually already known to cause. And separately,
+I'd included "generalized joint hypermobility" as a seed term, but it's a clinical sign,
+not a diagnosis — I found a real paper studying it as a population explicitly distinct
+from EDS. Fixed both; added regression tests for both.
+
+Only after those fixes did I trust the result enough to publish it. I checked it
+directly: no document before 2022 co-mentions an hEDS/HSD seed term and SLC39A13 in the
+same abstract, and neither of the two papers that discuss SLC39A13 at all (2020, 2021 —
+both about the unrelated rare subtype it was already known to cause) is itself a seed
+document. The link is built from several independently weak literature bridges, most
+substantially a shared "juvenile connective tissue diseases" concept appearing in 54
+real hEDS/HSD papers — I hand-verified the score's arithmetic against the raw graph,
+not just the code path. Full mechanism and sources are in `results/backtest.txt`.
+
+**One more honest thing, checked just now**: SLC39A13 is *still* classified as a
+candidate today, not yet "already studied" — even eleven months after the GWAS.
+Exactly one document in the whole corpus directly co-mentions hEDS and SLC39A13: the
+GWAS preprint itself. No second paper has echoed the connection yet, so it hasn't
+cleared this method's own 2-paper bar for "established." That's not a weakness in the
+method — it's a real, separate observation: the literature index can lag a genuine
+discovery by the better part of a year even after publication, which is exactly the
+kind of gap a tool like this is positioned to notice.
+
+Worth being precise about the boundary here too. SLC39A13 wasn't a total unknown going
+in — it's the established cause of a different, rare EDS subtype, which is exactly why
+it had *some* indirect literature trail to follow. ACKR3, the GWAS's other major locus,
+has no connective-tissue literature footprint at all, at any cutoff I tested including
+today, and the pipeline correctly has nothing to say about it. KLK15 has exactly one
+paper with a matched disease mention in the entire corpus — one paper isn't enough
+independent evidence, and correctly doesn't count. This method gets ahead of the field
+when a candidate has *some* textual trail, however thin; it has nothing to offer for a
+genuinely de novo finding with no trace at all, and it's honest about the difference.
+
+## What it actually found (the current shortlist)
 
 On the corpus I had when writing this (1,301 abstracts, 1,345 entities, 20,238
-co-occurrence edges — i.e. everything through 2026, not the pre-2025 backtest slice
-above), the pipeline found 2 clean hEDS/HSD seed terms and correctly filed 18 genes as
-"already studied" — including **SLC39A13** and **TNXB**. Notice that's a change from
-the backtest: SLC39A13 has moved from "indirect candidate" to "directly studied" as
-2025's papers actually caught up to it. That's not a contradiction, it's the point —
-the field closed the gap this pipeline flagged.
+co-occurrence edges), the pipeline correctly filed 24 genes as "already studied" —
+including COL3A1, COL6A3, SMAD3, and TNXB — and surfaced 10 candidates. Topping the
+list is **PLOD1**, which defines kyphoscoliotic EDS; most of the rest (AEBP1, DSE,
+B4GALT7, FKBP14) are similarly genes that define *other* EDS-spectrum disorders — a
+reasonable "maybe this whole gene family matters here too" hypothesis, not individually
+shocking. **SLC39A13** sits in the middle of the list, exactly where the backtest above
+says it should be. Further down, **C1R (complement C1r)** independently lines up with a
+2025/2026 proteomics paper that found complement-cascade proteins in hEDS patients'
+blood — a second, smaller case of two unrelated methods landing on the same idea.
 
-12 candidates made the final shortlist, topped by **COL3A1** — the gene that defines
-vascular EDS. That's not a surprise, biologically; it's a close nomenclature-and-
-literature neighbor of hEDS, so it makes sense it'd surface this way. Most of the top
-of the list is like that: COL6A3, PLOD1, B4GALT7, DSE, FKBP14, AEBP1 all define *other*
-EDS-spectrum disorders — a reasonable "maybe this whole gene family matters here too"
-hypothesis, not individually shocking.
-
-The one that actually stopped me, further down the list at #11, is **C1R (complement
-C1r)**. I didn't point the pipeline at it — it came out of the graph structure on its
-own — and it happens to line up with a 2025/2026 proteomics paper that found
-complement-cascade proteins showing up differently in hEDS patients' blood. It's not
-the strongest score in the shortlist, but it's the one place where this cheap
-literature-mining method and an unrelated wet-lab study landed on the same idea
-independently. That's worth more to me than a higher rank would be.
-
-Worth being upfront about: the newest 2024-2025 findings aren't well represented yet.
-ACKR3 shows up in the graph but hasn't cleared the co-occurrence threshold to count as
-"studied" — probably because only a handful of very recent papers mention it in an hEDS
-context so far. KLK15 and MIA3 don't show up in the corpus at all, most likely because
-PubTator3 hasn't finished indexing their source papers. That's a data-freshness problem
-with the underlying literature index, not a bug in the pipeline, and it should sort
-itself out as PubTator3 catches up and this gets re-run down the line.
+ACKR3 and MIA3 don't show up in the corpus at all yet, most likely because PubTator3
+hasn't finished indexing their source papers or the field hasn't cited them enough yet
+for co-occurrence evidence to build up. That's a data-freshness limit of the underlying
+literature index, not a bug in the pipeline, and it should resolve as the field
+catches up and this gets re-run down the line.
 
 ## Does it actually work?
 
@@ -195,10 +217,12 @@ itself out as PubTator3 catches up and this gets re-run down the line.
 - `tests/test_backtest.py` checks the date-filtering logic behind the retrospective
   validation above — the one piece of that script not already covered by the core
   discovery test.
-- On real output, the sanity check is: known hEDS-relevant genes (KLK15, ACKR3,
-  SLC39A13, TNXB) should land in "already studied," not the shortlist. If one of them
-  ever shows up as a "candidate," that's either a corpus-timing issue or something
-  worth actually looking into.
+- On real output, the sanity check is calibrated to what's actually established in the
+  literature, not just what's true biologically: TNXB, COL3A1, and COL6A3 should land
+  in "already studied" (they're repeatedly, directly co-mentioned with hEDS). SLC39A13
+  is expected to stay a *candidate* until a second independent paper echoes the GWAS
+  finding directly — see "The actual test" above for why that's the correct behavior,
+  not a bug.
 - And the one I can't automate away: read the top candidates yourself. Look at the
   bridge concept connecting them to hEDS and ask whether it's real biology or an
   annotation glitch. This is a hypothesis-generator, not an oracle — that check is
