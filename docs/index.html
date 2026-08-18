@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>hEDS Biomarker Discovery</title>
-<meta name="description" content="A literature-mining pipeline for hypermobile Ehlers-Danlos Syndrome: the theory, the method, the results, and a retrospective test of whether it actually works.">
+<meta name="description" content="A literature-mining pipeline for hEDS: backtested on pre-2022 literature, it flagged a gene years before an independent GWAS confirmed it, and today's run has two more candidates in that same unconfirmed position.">
 <style>
   :root {
     --paper: #f4f5f1;
@@ -317,9 +317,33 @@
   </p>
 </header>
 
+<section id="short-version">
+  <h2 class="display">The short version</h2>
+  <p>Skip to the point: this method has one real result, and two live leads because of it.</p>
+  <div class="card-grid">
+    <div class="card">
+      <div class="card-title">The proof</div>
+      <div class="card-body">Backtested on literature from before 2022 only. The pipeline flagged SLC39A13 as a candidate years before an independent GWAS meta-analysis found genome-wide-significant signal at that exact gene.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">What that means today</div>
+      <div class="card-body">VWF and C1R are on the current candidate list through the same kind of indirect evidence SLC39A13 had before it was confirmed. Neither is confirmed. Both are worth checking now.</div>
+    </div>
+    <div class="card">
+      <div class="card-title">The honest catch</div>
+      <div class="card-body">This is a backtest, not a prediction. The SLC39A13 result only held up after two rounds of finding and fixing real bugs in our own code.</div>
+    </div>
+  </div>
+  <p>
+    Full detail: <a href="#found">what we found</a>, <a href="#test">the real test</a>,
+    and <a href="#check">what to check yourself</a>.
+  </p>
+</section>
+
 <nav class="toc">
   <p>On this page</p>
   <ol>
+    <li><a href="#short-version">The short version</a></li>
     <li><a href="#problem">The problem</a></li>
     <li><a href="#idea">The idea</a></li>
     <li><a href="#how">How the robot works</a></li>
@@ -799,8 +823,8 @@
     <li>
       <span class="check-mark">&#9998;</span>
       <span class="check-body">
-        <strong>The VWF finding is new and has only had one pass of scrutiny.</strong>
-        <span>The bridge concept looks real, but it has not gone through the same two rounds of adversarial re-checking that SLC39A13 did. Run the backtest and the graph queries yourself before repeating this one as settled.</span>
+        <strong>VWF and C1R are today's live candidates, and they deserve harder scrutiny than a single pass.</strong>
+        <span>Both reach the list the way SLC39A13 did before its GWAS confirmation, through indirect evidence, not direct study. VWF's bridge concept looks real but has not gone through the two rounds of adversarial re-checking that SLC39A13's result did. C1R's match to a 2025-26 proteomics finding is suggestive, not independently re-verified here. Run the backtest and the graph queries yourself before treating either as more than a lead.</span>
       </span>
     </li>
     <li>

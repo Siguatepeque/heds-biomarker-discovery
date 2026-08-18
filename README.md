@@ -22,9 +22,16 @@ with hEDS only indirectly in the research literature, then validates each one ag
 STRING, GTEx, and ClinVar. Backtested on literature published only through 2021, more
 than three and a half years before the first hEDS GWAS meta-analysis, the pipeline
 independently flagged SLC39A13 as a candidate; that same gene later reached
-genome-wide significance in the 2025 meta-analysis [[1]](#references). This is a hypothesis-generating
-tool, not a diagnostic one; see [The real test](#the-real-test) for the full validation
-and [What this is not](#what-this-is-not) for its limits.
+genome-wide significance in the 2025 meta-analysis [[1]](#references). This is a
+hypothesis-generating tool, not a diagnostic one.
+
+> **Read this part first.** That backtest is not just a nice number, it is why two
+> names on today's candidate list, VWF and C1R, are worth checking right now. Both
+> reached the list the same way SLC39A13 did: through indirect literature evidence,
+> not direct study, and neither is confirmed yet. It only held up after two rounds of
+> finding and fixing real bugs in my own code; see [The real test](#the-real-test).
+> Full candidate list in [What we found](#what-we-found); what to be skeptical of in
+> [Hey please check this!](#hey-please-check-this).
 
 ## Contents
 
@@ -109,7 +116,7 @@ Topping the list is **PLOD1**, which defines kyphoscoliotic EDS. Most of the res
 disorders. That is a reasonable "maybe this whole gene family matters here too"
 hypothesis, not individually shocking.
 
-Two entries are worth a closer look on their own merits.
+Three entries are worth a closer look on their own merits.
 
 **SLC39A13** sits in the middle of the list. This is the gene from the retrospective
 test below, still classified as a candidate today rather than "already studied." More
@@ -223,10 +230,14 @@ and easy to run.
 
 I would rather tell you exactly what to be skeptical of than let you find it yourself.
 
-- **The VWF finding is new and has only had one pass of scrutiny.** I traced its
-  bridge concept and it looks real, but it has not gone through the same two rounds of
-  adversarial re-checking that SLC39A13 did. Run `backtest.py` and the graph queries in
-  `results/backtest.txt` yourself before repeating this one as settled.
+- **VWF and C1R are today's live candidates, and they deserve harder scrutiny than
+  a single pass.** Both reach the list the way SLC39A13 did before its GWAS
+  confirmation: through indirect evidence, not direct study. I traced VWF's bridge
+  concept and it looks real, but it has not gone through the same two rounds of
+  adversarial re-checking that SLC39A13's result did. C1R's match to the 2025-26
+  proteomics finding is suggestive, not something I have independently re-verified.
+  Run `backtest.py` and the graph queries in `results/backtest.txt` yourself before
+  treating either as more than a lead.
 - **BCL2A1 is flagged weak on purpose.** I left it in the shortlist instead of quietly
   dropping it. Read it as "the pipeline's noise floor," not as a finding.
 - **The seed-matching patterns in `discover_candidates.py` are a hand-built list.** I
