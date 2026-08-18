@@ -13,20 +13,35 @@ A lead list.
 **Full write-up:** [siguatepeque.github.io/heds-biomarker-discovery](https://siguatepeque.github.io/heds-biomarker-discovery/)
 reads more like a normal article. This README is the developer-facing version.
 
+## Abstract
+
+There is no lab test for hypermobile Ehlers-Danlos Syndrome (hEDS) — diagnosis is
+still checklist-based under the 2017 criteria. This project applies literature-based
+discovery (Swanson's ABC model) to PubMed to surface candidate genes that co-occur
+with hEDS only indirectly in the research literature, then validates each one against
+STRING, GTEx, and ClinVar. Backtested on literature published only through 2021 — more
+than three and a half years before the first hEDS GWAS meta-analysis — the pipeline
+independently flagged SLC39A13 as a candidate; that same gene later reached
+genome-wide significance in the 2025 meta-analysis [[1]](#references). This is a hypothesis-generating
+tool, not a diagnostic one; see [The real test](#the-real-test) for the full validation
+and [What this is not](#what-this-is-not) for its limits.
+
 ## Contents
 
-1. [The problem, in plain terms](#the-problem-in-plain-terms)
-2. [The theory](#the-theory)
-3. [How the robot works](#how-the-robot-works)
-4. [What we found](#what-we-found)
-5. [The real test](#the-real-test)
-6. [What's new here](#whats-new-here)
-7. [What backs this up](#what-backs-this-up)
-8. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
-9. [Hey please check this!](#hey-please-check-this)
-10. [What this is not](#what-this-is-not)
-11. [Running it](#running-it)
-12. [Does it actually work?](#does-it-actually-work)
+1. [Abstract](#abstract)
+2. [The problem, in plain terms](#the-problem-in-plain-terms)
+3. [The theory](#the-theory)
+4. [How the robot works](#how-the-robot-works)
+5. [What we found](#what-we-found)
+6. [The real test](#the-real-test)
+7. [What's new here](#whats-new-here)
+8. [What backs this up](#what-backs-this-up)
+9. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
+10. [Hey please check this!](#hey-please-check-this)
+11. [What this is not](#what-this-is-not)
+12. [Running it](#running-it)
+13. [Does it actually work?](#does-it-actually-work)
+14. [References](#references)
 
 ## The problem, in plain terms
 
@@ -135,7 +150,7 @@ python backtest.py --cutoffs 2019 2020 2021 2022 2023 2024 2025 2026
 ```
 
 Using only papers published through 2021, more than three and a half years before the
-first hEDS GWAS meta-analysis went up on medRxiv (19 September 2025), the pipeline
+first hEDS GWAS meta-analysis went up on medRxiv (19 September 2025) [[1]](#references), the pipeline
 flags SLC39A13 as a candidate through a purely indirect literature path. In September
 2025, an independent GWAS meta-analysis (about 1,800 cases, 5,000 controls, a
 completely different method: genotyping, not literature) found genome-wide significant
@@ -172,18 +187,16 @@ known genes.
 
 - **KLK gene family**, especially KLK15. A recurrent variant turned up in whole exome
   sequencing of 200 hEDS patients, and it reproduces connective tissue defects when
-  reintroduced in mice.
-  [Norris Lab, iScience 2025](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11213194/)
+  reintroduced in mice. [[2]](#references)
 - **ACKR3 and SLC39A13**, the first hEDS GWAS meta-analysis, pointing toward a
-  neuroimmune and stromal story rather than a single collagen gene.
-  [Petrucci-Nelson et al., medRxiv 2025](https://www.medrxiv.org/content/10.1101/2025.09.19.25336146v1)
+  neuroimmune and stromal story rather than a single collagen gene. [[1]](#references)
 - **MIA3**, another 2024 to 2025 candidate, still unresolved.
 - **TNXB** (partial deficiency), the oldest lead in this space, though it only
   explains about 1 percent of cases, and serum tenascin-X testing failed as a
   screening tool when people actually tried it. Kept as a weak legacy check.
 - **A plasma ECM-fragmentation signature** (fibronectin, collagen-I, and tenascin
   fragments), probably the closest thing to an actual proposed biomarker that exists
-  right now, still unvalidated. [Ritelli et al.](https://pubmed.ncbi.nlm.nih.gov/39225014/)
+  right now, still unvalidated. [[3]](#references)
 - **The HEDGE Study**, the Ehlers-Danlos Society's own large scale sequencing effort
   covering 1,000 patients, still producing results.
 
@@ -191,9 +204,8 @@ known genes.
 
 **Clustering patients into subtypes by symptoms.** Already done, and done well. Mayo
 Clinic ran K-means and UMAP on more than 2,100 real patients and published real
-subtypes. [Petrucci et al. 2024](https://pubmed.ncbi.nlm.nih.gov/38779137/) I do not
-have that kind of data, and running the same analysis on something worse would not add
-anything.
+subtypes. [[4]](#references) I do not have that kind of data, and running the same
+analysis on something worse would not add anything.
 
 **Wearables and video-based biomarkers.** Genuinely exciting research: AI-scored
 hypermobility from video, wearable heart-rate-variability tracking. Every dataset
@@ -271,3 +283,21 @@ cutoff), `--top-n` (shortlist size).
   bridge concept connecting them to hEDS and ask whether it is real biology or an
   annotation glitch. This is a hypothesis generator, not an oracle. That check is what
   makes the output mean anything.
+
+## References
+
+1. Petrucci-Nelson T, Guilhaumou S, Berrandou T-E, et al. Complex Genetics and
+   Regulatory Drivers of Hypermobile Ehlers-Danlos Syndrome: Insights from
+   Genome-Wide Association Study Meta-analysis. medRxiv. 2025 Sep 21. Preprint.
+   doi:[10.1101/2025.09.19.25336146](https://doi.org/10.1101/2025.09.19.25336146)
+2. Gensemer C, Petrucci T, Beck T, et al. KLK15 alters connective tissues in
+   hypermobile Ehlers-Danlos syndrome. iScience. 2025;28(9):113343.
+   doi:[10.1016/j.isci.2025.113343](https://doi.org/10.1016/j.isci.2025.113343)
+3. Ritelli M, Chiarelli N, Cinquina V, et al. Bridging the Diagnostic Gap for
+   Hypermobile Ehlers-Danlos Syndrome and Hypermobility Spectrum Disorders: Evidence
+   of a Common Extracellular Matrix Fragmentation Pattern in Patient Plasma as a
+   Potential Biomarker. Am J Med Genet A. 2025 Jan.
+   doi:[10.1002/ajmg.a.63857](https://doi.org/10.1002/ajmg.a.63857)
+4. Petrucci T, Barclay SJ, Gensemer C, et al. Phenotypic Clusters and Multimorbidity
+   in Hypermobile Ehlers-Danlos Syndrome. Mayo Clin Proc Innov Qual Outcomes. 2024 Jun.
+   doi:[10.1016/j.mayocpiqo.2024.04.001](https://doi.org/10.1016/j.mayocpiqo.2024.04.001)
