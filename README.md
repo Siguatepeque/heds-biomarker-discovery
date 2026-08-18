@@ -15,12 +15,12 @@ reads more like a normal article. This README is the developer-facing version.
 
 ## Abstract
 
-There is no lab test for hypermobile Ehlers-Danlos Syndrome (hEDS) — diagnosis is
+There is no lab test for hypermobile Ehlers-Danlos Syndrome (hEDS); diagnosis is
 still checklist-based under the 2017 criteria. This project applies literature-based
 discovery (Swanson's ABC model) to PubMed to surface candidate genes that co-occur
 with hEDS only indirectly in the research literature, then validates each one against
-STRING, GTEx, and ClinVar. Backtested on literature published only through 2021 — more
-than three and a half years before the first hEDS GWAS meta-analysis — the pipeline
+STRING, GTEx, and ClinVar. Backtested on literature published only through 2021, more
+than three and a half years before the first hEDS GWAS meta-analysis, the pipeline
 independently flagged SLC39A13 as a candidate; that same gene later reached
 genome-wide significance in the 2025 meta-analysis [[1]](#references). This is a hypothesis-generating
 tool, not a diagnostic one; see [The real test](#the-real-test) for the full validation
