@@ -42,7 +42,7 @@ hypothesis-generating tool, not a diagnostic one.
 
 > [!NOTE]
 > This is a backtest, not a prediction, and it only held up after two rounds of
-> finding and fixing real bugs in my own code — see [The real test](#the-real-test).
+> finding and fixing real bugs in my own code, see [The real test](#the-real-test).
 > Full candidate list and methodology in [What we found](#what-we-found); what to be
 > skeptical of in [Hey please check this!](#hey-please-check-this).
 
