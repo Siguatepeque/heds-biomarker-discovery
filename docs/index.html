@@ -357,6 +357,7 @@
     <li><a href="#idea">The idea</a></li>
     <li><a href="#how">How the robot works</a></li>
     <li><a href="#test">The real test</a></li>
+    <li><a href="#negative-control">Negative control</a></li>
     <li><a href="#found">What we found</a></li>
     <li><a href="#new">What is new here</a></li>
     <li><a href="#backs-up">What backs this up</a></li>
@@ -619,8 +620,80 @@
   </p>
 
   <p>
-    That is the proof the method has a track record. Here is what it says about
-    right now.
+    That is the positive control: a real gene, correctly flagged early. A method that
+    only ever says yes proves nothing on its own, so it needs a negative control too.
+  </p>
+</section>
+
+<section id="negative-control">
+  <h2 class="display">Negative control</h2>
+  <p>
+    The real test above shows the method can get ahead of the field on hEDS. It says
+    nothing about whether the method would do that for <em>any</em> disease, whether or
+    not a real gene is actually there to find. So we picked fibromyalgia and ran the
+    identical pipeline against it, unchanged except for swapping the PubMed query and
+    seed terms.
+  </p>
+  <p>
+    Fibromyalgia is a deliberately harder case: a literature almost four times the size
+    of hEDS's (4,938 documents fetched), dominated by generic hub terms like pain,
+    fatigue, and cytokines that are exactly what the Adamic-Adar weighting is built to
+    discount, and, when this project's design was decided, no gene that had reached
+    genome-wide significance. That stopped being true partway through this project.
+    Kerrebijn and colleagues, preprinted in September 2025 and published in
+    <em>Nature Medicine</em> in July 2026, found the first genome-wide-significant
+    fibromyalgia loci: HTT, GPR52, DCC, DRD2, NCAM1, MDGA2, CELF4, and CAMKV. Rather
+    than treat that as a problem, we used it. It turns fibromyalgia into a second,
+    independent check shaped like the SLC39A13 story, run in the opposite direction:
+    does the pipeline also backfill these genes as early candidates for fibromyalgia,
+    the way it did for SLC39A13 in hEDS?
+  </p>
+
+  <div class="table-scroll">
+    <table class="results">
+      <thead>
+        <tr><th>Gene</th><th>Status through 2026</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="gene-cell mono">HTT</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">GPR52</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">DCC</td><td class="note-cell callout">Filed "already directly studied" in 2026, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">DRD2</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">NCAM1</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">MDGA2</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">CELF4</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+        <tr><td class="gene-cell mono">CAMKV</td><td class="note-cell">Present in corpus, never a candidate</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="pull">
+    Across all 8 cutoff years tested, including today's full corpus, none of the 8 real
+    fibromyalgia GWAS genes is ever flagged as a candidate. Zero false "years-early"
+    flags on the disease this control was built to stress-test.
+  </div>
+
+  <p>
+    That is a clean negative, not an artifact of an empty corpus. By 2026 the corpus has
+    4,245 documents and 45,373 edges, bigger than the entire hEDS corpus, all 8 target
+    genes are present in the graph, and the method still declines to call any of them a
+    candidate. The one gene that changes status, DCC, moves straight from "present but
+    below the bridge floor" to "already directly studied," the same pattern SLC39A13
+    showed in the real backtest: some 2026 document, almost certainly the GWAS paper
+    itself, mentions it alongside fibromyalgia directly.
+  </p>
+  <p>
+    The live pipeline run still surfaces 6 candidates for fibromyalgia today: Nfe2l2,
+    Bax, S100A7, PPARGC1A, Myog, and IL23A. None of them match any of the 8 real GWAS
+    genes, and none match the older, weaker fibromyalgia candidate-gene literature
+    either. What they have in common is thematic, not genetic: Nrf2, Bax, and
+    PGC-1alpha are recurring names in fibromyalgia's oxidative-stress and
+    mitochondrial-dysfunction literature, a popular framing that is not itself a
+    genetic finding. That is a real, named limitation, not a clean pass. Bridge degree
+    alone does not distinguish a specific-but-wrong bridge concept from a
+    specific-and-right one, and a large enough non-genetic literature can still clear
+    the hub-degree filter. Full cutoff-by-cutoff numbers and citations are in
+    <code>results/control_backtest.txt</code>.
   </p>
 </section>
 

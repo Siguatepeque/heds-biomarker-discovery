@@ -54,15 +54,16 @@ hypothesis-generating tool, not a diagnostic one.
 4. [The theory](#the-theory)
 5. [How the robot works](#how-the-robot-works)
 6. [The real test](#the-real-test)
-7. [What we found](#what-we-found)
-8. [What's new here](#whats-new-here)
-9. [What backs this up](#what-backs-this-up)
-10. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
-11. [Hey please check this!](#hey-please-check-this)
-12. [What this is not](#what-this-is-not)
-13. [Running it](#running-it)
-14. [Does it actually work?](#does-it-actually-work)
-15. [References](#references)
+7. [Negative control](#negative-control)
+8. [What we found](#what-we-found)
+9. [What's new here](#whats-new-here)
+10. [What backs this up](#what-backs-this-up)
+11. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
+12. [Hey please check this!](#hey-please-check-this)
+13. [What this is not](#what-this-is-not)
+14. [Running it](#running-it)
+15. [Does it actually work?](#does-it-actually-work)
+16. [References](#references)
 
 ## The problem, in plain terms
 
@@ -155,7 +156,48 @@ method. It is a real, separate observation: the literature index can lag a genui
 discovery by the better part of a year even after publication, which is exactly the
 kind of gap a tool like this is positioned to notice.
 
-That is the proof the method has a track record. Here is what it says about right now.
+That is the positive control: a real gene, correctly flagged early. A method that only
+ever says yes is not proof of anything, so it needs a negative control too.
+
+## Negative control
+
+The real test above shows the method can get ahead of the field on hEDS. It says
+nothing about whether the method would do that for *any* disease, whether or not a real
+gene is there to find. So I picked fibromyalgia and ran the identical pipeline
+(`control_disease.py`, `controls.py`, `control_backtest.py`) against it, unchanged
+except for swapping the PubMed query and seed terms.
+
+Fibromyalgia is a deliberate, harder case: a literature almost four times the size of
+hEDS's (4,938 documents fetched, retmax=5000), dominated by generic hub terms (pain,
+fatigue, cytokines) that are exactly what the Adamic-Adar weighting is built to
+discount, and, as of when this project's design was decided, no gene that had reached
+genome-wide significance. That stopped being true partway through this project:
+Kerrebijn et al., preprinted in September 2025 and published in *Nature Medicine* in
+July 2026 [[5]](#references), found the first genome-wide-significant fibromyalgia
+loci: HTT, GPR52, DCC, DRD2, NCAM1, MDGA2, CELF4, and CAMKV. Rather than treat that as a problem, I used it: it turns
+fibromyalgia into a second, independent check of the same shape as the SLC39A13 story,
+just run in the opposite direction. Does the pipeline also backfill these genes as
+early candidates for fibromyalgia, the way it did for SLC39A13 in hEDS?
+
+Across all 8 cutoff years, including today's full corpus, the answer is no. None of the
+8 real fibromyalgia GWAS genes is ever flagged as a candidate. Seven sit as "present in
+the corpus but below the bridge floor" even at the 2026 cutoff; the eighth, DCC, moves
+straight to "already directly studied" once a 2026 document (almost certainly the GWAS
+paper itself) mentions it alongside fibromyalgia by name, same pattern as SLC39A13's own
+GWAS preprint in the real backtest. Zero false "years-early" flags on the disease this
+control was built to stress-test.
+
+The live pipeline run (`results/control_candidates.csv`) still surfaces 6 candidates for
+fibromyalgia today: Nfe2l2, Bax, S100A7, PPARGC1A, Myog, IL23A. None of them match any
+of the 8 real GWAS genes, and none match the older, weaker fibromyalgia candidate-gene
+literature either (GCH1, COMT, OPRM1). What they have in common is thematic, not
+genetic: Nrf2, Bax, and PGC-1alpha are recurring names in fibromyalgia's
+oxidative-stress/mitochondrial-dysfunction mechanistic literature, a popular framing
+that is not itself a genetic finding. That is a real, named limitation, not a clean
+pass: bridge degree alone doesn't distinguish a specific-and-wrong bridge concept from a
+specific-and-right one, and a large enough non-genetic literature can still clear the
+hub-degree filter. Full cutoff-by-cutoff numbers, citations, and the established-gene
+check are in `results/control_backtest.txt`.
 
 ## What we found
 
@@ -322,6 +364,9 @@ Other flags: `--retmax` (how many PubMed results to pull), `--min-weight` (how m
 co-occurring abstracts before an edge counts), `--max-bridge-degree` (the hub-node
 cutoff), `--top-n` (shortlist size).
 
+Tested on Python 3.11.6; dependency versions in `requirements.txt` were pinned to
+the latest release of each still compatible with Python 3.9+ as of 2026-08-18.
+
 ## Does it actually work?
 
 - `tests/test_build_graph.py` is a small synthetic-graph test that checks the core
@@ -330,6 +375,9 @@ cutoff), `--top-n` (shortlist size).
   required. Run it with `venv\Scripts\python tests\test_build_graph.py`.
 - `tests/test_backtest.py` checks the date-filtering logic behind the retrospective
   validation above.
+- `tests/test_controls.py` checks that the control disease's seed patterns
+  (`controls.py`) don't cross-match hEDS text or vice versa, and that swapping the
+  pipeline over to the control config and back is fully reversible.
 - On real output, the sanity check is calibrated to what is actually established in
   the literature, not just what is true biologically: TNXB, COL3A1, and COL6A3 should
   land in "already studied" because they are repeatedly, directly co-mentioned with
@@ -357,3 +405,8 @@ cutoff), `--top-n` (shortlist size).
 4. Petrucci T, Barclay SJ, Gensemer C, et al. Phenotypic Clusters and Multimorbidity
    in Hypermobile Ehlers-Danlos Syndrome. Mayo Clin Proc Innov Qual Outcomes. 2024 Jun.
    doi:[10.1016/j.mayocpiqo.2024.04.001](https://doi.org/10.1016/j.mayocpiqo.2024.04.001)
+5. Kerrebijn I, et al. The genetic architecture of fibromyalgia across 2.5 million
+   individuals. medRxiv. 2025 Sep 19. Preprint.
+   doi:[10.1101/2025.09.18.25335914](https://doi.org/10.1101/2025.09.18.25335914).
+   Published: Nat Med. 2026 Jul 28.
+   doi:[10.1038/s41591-026-04492-6](https://doi.org/10.1038/s41591-026-04492-6)
