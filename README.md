@@ -25,30 +25,44 @@ independently flagged SLC39A13 as a candidate; that same gene later reached
 genome-wide significance in the 2025 meta-analysis [[1]](#references). This is a
 hypothesis-generating tool, not a diagnostic one.
 
-> **Read this part first.** That backtest is not just a nice number, it is why two
-> names on today's candidate list, VWF and C1R, are worth checking right now. Both
-> reached the list the same way SLC39A13 did: through indirect literature evidence,
-> not direct study, and neither is confirmed yet. It only held up after two rounds of
-> finding and fixing real bugs in my own code; see [The real test](#the-real-test).
-> Full candidate list in [What we found](#what-we-found); what to be skeptical of in
-> [Hey please check this!](#hey-please-check-this).
+## Key results
+
+> [!IMPORTANT]
+> **The pipeline has a track record, and it says two more genes are worth checking
+> right now.** Backtested on pre-2022 literature only, it flagged **SLC39A13** years
+> before an independent GWAS confirmed it. **VWF** and **C1R** are on today's
+> candidate list through that same kind of indirect evidence: unconfirmed, but in
+> the exact position SLC39A13 was in before anyone checked it.
+
+| Gene | Status | Evidence |
+|---|---|---|
+| **SLC39A13** | Backtest-confirmed | Flagged from pre-2022 literature alone; reached genome-wide significance in the 2025 GWAS meta-analysis [[1]](#references) |
+| **VWF** | Live candidate, unconfirmed | Real bridge via a documented bleeding/bruising symptom link; not yet directly studied in hEDS |
+| **C1R** | Live candidate, unconfirmed | Matches an independent 2025-26 proteomics finding the pipeline was never pointed at |
+
+> [!NOTE]
+> This is a backtest, not a prediction, and it only held up after two rounds of
+> finding and fixing real bugs in my own code — see [The real test](#the-real-test).
+> Full candidate list and methodology in [What we found](#what-we-found); what to be
+> skeptical of in [Hey please check this!](#hey-please-check-this).
 
 ## Contents
 
 1. [Abstract](#abstract)
-2. [The problem, in plain terms](#the-problem-in-plain-terms)
-3. [The theory](#the-theory)
-4. [How the robot works](#how-the-robot-works)
-5. [What we found](#what-we-found)
+2. [Key results](#key-results)
+3. [The problem, in plain terms](#the-problem-in-plain-terms)
+4. [The theory](#the-theory)
+5. [How the robot works](#how-the-robot-works)
 6. [The real test](#the-real-test)
-7. [What's new here](#whats-new-here)
-8. [What backs this up](#what-backs-this-up)
-9. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
-10. [Hey please check this!](#hey-please-check-this)
-11. [What this is not](#what-this-is-not)
-12. [Running it](#running-it)
-13. [Does it actually work?](#does-it-actually-work)
-14. [References](#references)
+7. [What we found](#what-we-found)
+8. [What's new here](#whats-new-here)
+9. [What backs this up](#what-backs-this-up)
+10. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
+11. [Hey please check this!](#hey-please-check-this)
+12. [What this is not](#what-this-is-not)
+13. [Running it](#running-it)
+14. [Does it actually work?](#does-it-actually-work)
+15. [References](#references)
 
 ## The problem, in plain terms
 
@@ -103,58 +117,22 @@ public data. No lab access required, no patient data touched at any point.
 5. Out comes `results/candidates.csv`, usually 10 to 20 genes, each with its evidence
    and a plain language reason it made the list.
 
-## What we found
-
-On the corpus I had while writing this (1,301 abstracts, 1,345 entities, 20,238
-co-occurrence edges), the pipeline correctly filed 24 genes as "already studied,"
-including COL3A1, COL6A3, SMAD3, and TNXB, and surfaced 10 candidates.
-
-![Composite score per candidate gene, PLOD1 highest at 7.69 down to BCL2A1 at 2.78](docs/assets/candidates-chart.svg)
-
-Topping the list is **PLOD1**, which defines kyphoscoliotic EDS. Most of the rest
-(AEBP1, DSE, B4GALT7, FKBP14) are similarly genes that define other EDS-spectrum
-disorders. That is a reasonable "maybe this whole gene family matters here too"
-hypothesis, not individually shocking.
-
-Three entries are worth a closer look on their own merits.
-
-**SLC39A13** sits in the middle of the list. This is the gene from the retrospective
-test below, still classified as a candidate today rather than "already studied." More
-on that shortly.
-
-**C1R (complement C1r)** independently lines up with a 2025 to 2026 proteomics paper
-that found complement-cascade proteins showing up differently in hEDS patients' blood.
-I did not point the pipeline at it. It came out of the graph structure on its own, and
-it happens to match a completely separate wet-lab finding.
-
-One more worth naming honestly. **VWF (von Willebrand factor)** reaches the list
-through a real, coherent bridge concept ("bleedings," a symptom term appearing in 18
-real hEDS papers), and bleeding or bruising tendency is a documented hEDS comorbidity.
-It has not been directly studied in hEDS by name yet, but the path here is clean, the
-same shape as the SLC39A13 case before anyone confirmed it.
-
-Not everything on the list deserves that kind of confidence. **BCL2A1** is here too,
-and I think it is mostly noise: low connective-tissue expression (3.5 TPM), reached
-only through a chain of classical (not hypermobile) EDS papers, and no clear
-biological reason to expect it. I am leaving it in the output because hiding a weak
-result is worse than showing one, but it should be read as weak.
-
-ACKR3 and MIA3, two of the newest 2024 to 2025 hEDS genes, do not show up in the
-corpus at all yet. That is a data-freshness limit of the underlying literature index,
-not a bug in the pipeline.
-
 ## The real test
 
-A shortlist is a claim about the future: these are worth a second look. The only
-honest way to test that claim is to go back in time. `backtest.py` reruns the exact
-same pipeline using only literature published before a chosen cutoff year (the cached
-documents each carry their own publication date, so this needs no new network calls),
-and checks whether genes that real 2024 to 2025 hEDS genetics later confirmed were
-already showing up as candidates before that confirmation existed.
+Before trusting any candidate this pipeline produces, it's worth asking whether its
+shortlists mean anything at all. A shortlist is a claim about the future: these are
+worth a second look. The only honest way to test that claim is to go back in time.
+`backtest.py` reruns the exact same pipeline using only literature published before a
+chosen cutoff year (the cached documents each carry their own publication date, so
+this needs no new network calls), and checks whether genes that real 2024 to 2025
+hEDS genetics later confirmed were already showing up as candidates before that
+confirmation existed.
 
 ```
 python backtest.py --cutoffs 2019 2020 2021 2022 2023 2024 2025 2026
 ```
+
+![Timeline: SLC39A13 flagged from pre-2022 literature, more than three and a half years before a 2025 GWAS found genome-wide-significant signal at the same gene](docs/assets/backtest-timeline.svg)
 
 Using only papers published through 2021, more than three and a half years before the
 first hEDS GWAS meta-analysis went up on medRxiv (19 September 2025) [[1]](#references), the pipeline
@@ -176,6 +154,67 @@ itself. No second paper has echoed the connection yet. That is not a weakness in
 method. It is a real, separate observation: the literature index can lag a genuine
 discovery by the better part of a year even after publication, which is exactly the
 kind of gap a tool like this is positioned to notice.
+
+That is the proof the method has a track record. Here is what it says about right now.
+
+## What we found
+
+With that track record established: on the corpus I had while writing this (1,301
+abstracts, 1,345 entities, 20,238 co-occurrence edges), the pipeline correctly filed
+24 genes as "already studied," including COL3A1, COL6A3, SMAD3, and TNXB, and
+surfaced 10 candidates.
+
+![Composite score per candidate gene, PLOD1 highest at 7.69 down to BCL2A1 at 2.78](docs/assets/candidates-chart.svg)
+
+| Gene | Score | Why it's here |
+|---|---:|---|
+| PLOD1 | 7.69 | Defines kyphoscoliotic EDS |
+| DSE | 5.40 | Defines musculocontractural EDS |
+| B4GALT7 | 5.40 | Defines spondylodysplastic EDS |
+| AEBP1 | 5.29 | Defines classical-like EDS |
+| TGFB1 | 5.22 | The TGF-beta ligand itself |
+| **SLC39A13** | 4.68 | The gene from the retrospective backtest above |
+| FKBP14 | 3.81 | Defines kyphoscoliotic EDS, type 2 |
+| VWF | 2.86 | Real bridge via "bleedings," a documented hEDS symptom |
+| C1R | 2.83 | Matches an independent 2025-26 proteomics finding |
+| BCL2A1 | 2.78 | Weak. Low expression, likely noise |
+
+Topping the list is **PLOD1**, which defines kyphoscoliotic EDS. Most of the rest
+(AEBP1, DSE, B4GALT7, FKBP14) are similarly genes that define other EDS-spectrum
+disorders. That is a reasonable "maybe this whole gene family matters here too"
+hypothesis, not individually shocking.
+
+Three entries are worth a closer look on their own merits.
+
+#### SLC39A13
+
+This is the gene from the retrospective backtest above, years-early evidence later
+confirmed by GWAS, still classified as a candidate today rather than "already
+studied," even now.
+
+#### C1R (complement C1r)
+
+Independently lines up with a 2025 to 2026 proteomics paper that found
+complement-cascade proteins showing up differently in hEDS patients' blood. I did not
+point the pipeline at it. It came out of the graph structure on its own, and it
+happens to match a completely separate wet-lab finding.
+
+#### VWF (von Willebrand factor)
+
+Reaches the list through a real, coherent bridge concept ("bleedings," a symptom term
+appearing in 18 real hEDS papers), and bleeding or bruising tendency is a documented
+hEDS comorbidity. It has not been directly studied in hEDS by name yet, but the path
+here is clean, the same shape as the SLC39A13 case before anyone confirmed it.
+
+Not everything on the list deserves that kind of confidence. **BCL2A1** is here too,
+and I think it is mostly noise: low connective-tissue expression (3.5 TPM), reached
+only through a chain of classical (not hypermobile) EDS papers, and no clear
+biological reason to expect it. I am leaving it in the output because hiding a weak
+result is worse than showing one, but it should be read as weak.
+
+ACKR3 and MIA3, two of the newest 2024 to 2025 hEDS genes, do not show up in the
+corpus at all yet. That is a data-freshness limit of the underlying literature index,
+not a bug in the pipeline.
 
 ## What's new here
 
@@ -209,6 +248,9 @@ known genes.
 
 ## What I decided not to do, and why
 
+<details>
+<summary>Three things worth naming, and why each one was skipped</summary>
+
 **Clustering patients into subtypes by symptoms.** Already done, and done well. Mayo
 Clinic ran K-means and UMAP on more than 2,100 real patients and published real
 subtypes. [[4]](#references) I do not have that kind of data, and running the same
@@ -225,6 +267,8 @@ strictly better. It was deprecated in December 2024 and has not been updated sin
 it would miss both the 2025 GWAS paper and the 2024 KLK15 finding above, and it needs a
 UMLS license to even access. Not worth the tradeoff for something meant to stay current
 and easy to run.
+
+</details>
 
 ## Hey please check this!
 
@@ -253,11 +297,12 @@ I would rather tell you exactly what to be skeptical of than let you find it you
 
 ## What this is not
 
-This is a hypothesis-generating research tool, not a diagnostic instrument. There is no
-confirmed diagnostic biomarker for hEDS in the published literature: not from this
-project, not from anyone, not yet. Nothing here should be used to include, exclude, or
-otherwise influence an actual diagnosis. At best, a candidate on this list is a
-starting point for someone with a lab to look closer.
+> [!WARNING]
+> This is a hypothesis-generating research tool, not a diagnostic instrument. There
+> is no confirmed diagnostic biomarker for hEDS in the published literature: not from
+> this project, not from anyone, not yet. Nothing here should be used to include,
+> exclude, or otherwise influence an actual diagnosis. At best, a candidate on this
+> list is a starting point for someone with a lab to look closer.
 
 ## Running it
 

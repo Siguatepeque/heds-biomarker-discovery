@@ -275,6 +275,9 @@
   .check-body strong { display: block; margin-bottom: 3px; }
   .check-body span { color: var(--muted); font-size: 0.93rem; }
 
+  details > summary { cursor: pointer; font-weight: 600; margin-bottom: 12px; }
+  details[open] > summary { margin-bottom: 24px; }
+
   .btn {
     display: inline-block;
     background: var(--ink);
@@ -318,24 +321,30 @@
 </header>
 
 <section id="short-version">
-  <h2 class="display">The short version</h2>
+  <h2 class="display">Key results</h2>
   <p>Skip to the point: this method has one real result, and two live leads because of it.</p>
-  <div class="card-grid">
-    <div class="card">
-      <div class="card-title">The proof</div>
-      <div class="card-body">Backtested on literature from before 2022 only. The pipeline flagged SLC39A13 as a candidate years before an independent GWAS meta-analysis found genome-wide-significant signal at that exact gene.</div>
-    </div>
-    <div class="card">
-      <div class="card-title">What that means today</div>
-      <div class="card-body">VWF and C1R are on the current candidate list through the same kind of indirect evidence SLC39A13 had before it was confirmed. Neither is confirmed. Both are worth checking now.</div>
-    </div>
-    <div class="card">
-      <div class="card-title">The honest catch</div>
-      <div class="card-body">This is a backtest, not a prediction. The SLC39A13 result only held up after two rounds of finding and fixing real bugs in our own code.</div>
-    </div>
+
+  <div class="table-scroll">
+    <table class="results">
+      <thead>
+        <tr><th>Gene</th><th>Status</th><th>Evidence</th></tr>
+      </thead>
+      <tbody>
+        <tr class="highlight"><td class="gene-cell mono">SLC39A13</td><td class="note-cell callout">Backtest-confirmed</td><td class="note-cell">Flagged from pre-2022 literature alone; reached genome-wide significance in the 2025 GWAS meta-analysis</td></tr>
+        <tr><td class="gene-cell mono">VWF</td><td class="note-cell callout">Live candidate, unconfirmed</td><td class="note-cell">Real bridge via a documented bleeding/bruising symptom link</td></tr>
+        <tr><td class="gene-cell mono">C1R</td><td class="note-cell callout">Live candidate, unconfirmed</td><td class="note-cell">Matches an independent 2025-26 proteomics finding the pipeline was never pointed at</td></tr>
+      </tbody>
+    </table>
   </div>
+
+  <div class="pull">
+    This is a backtest, not a prediction, and it only held up after two rounds of
+    finding and fixing real bugs in our own code. Neither VWF nor C1R is confirmed;
+    both are today's version of the position SLC39A13 was in before anyone checked it.
+  </div>
+
   <p>
-    Full detail: <a href="#found">what we found</a>, <a href="#test">the real test</a>,
+    Full detail: <a href="#test">the real test</a>, <a href="#found">what we found</a>,
     and <a href="#check">what to check yourself</a>.
   </p>
 </section>
@@ -343,12 +352,12 @@
 <nav class="toc">
   <p>On this page</p>
   <ol>
-    <li><a href="#short-version">The short version</a></li>
+    <li><a href="#short-version">Key results</a></li>
     <li><a href="#problem">The problem</a></li>
     <li><a href="#idea">The idea</a></li>
     <li><a href="#how">How the robot works</a></li>
-    <li><a href="#found">What we found</a></li>
     <li><a href="#test">The real test</a></li>
+    <li><a href="#found">What we found</a></li>
     <li><a href="#new">What is new here</a></li>
     <li><a href="#backs-up">What backs this up</a></li>
     <li><a href="#not-do">What we did not do</a></li>
@@ -482,144 +491,17 @@
   </p>
 </section>
 
-<section id="found">
-  <h2 class="display">What we found</h2>
-  <p>
-    On the corpus we had while writing this (1,301 abstracts, 1,345 entities, 20,238
-    co-occurrence edges), the pipeline correctly filed 24 genes as "already studied,"
-    including COL3A1, COL6A3, SMAD3, and TNXB, and surfaced 10 candidates.
-  </p>
-  <figure class="diagram">
-    <div class="frame">
-      <svg viewBox="0 0 820 330" role="img" aria-label="Bar chart of composite validation scores for the ten candidate genes, ranked highest to lowest: PLOD1 7.69, DSE 5.40, B4GALT7 5.40, AEBP1 5.29, TGFB1 5.22, SLC39A13 4.68, FKBP14 3.81, VWF 2.86, C1R 2.83, BCL2A1 2.78. SLC39A13, VWF, and C1R are marked independently corroborated by outside evidence; BCL2A1 is marked flagged weak.">
-        <g>
-          <circle cx="8" cy="10" r="5" class="bar-corroborated" />
-          <text x="18" y="14" class="node-sub">Independently corroborated</text>
-          <circle cx="230" cy="10" r="5" class="bar-weak" />
-          <text x="240" y="14" class="node-sub">Flagged weak</text>
-          <circle cx="360" cy="10" r="5" class="bar-candidate" />
-          <text x="370" y="14" class="node-sub">Candidate</text>
-        </g>
-        <line x1="150" y1="28" x2="150" y2="318" class="chart-axis" stroke-width="1" />
-        <g>
-          <rect x="150" y="39" width="600" height="18" rx="3" class="bar-candidate" />
-          <text x="4" y="52" class="node-label">PLOD1</text>
-          <text x="758" y="52" class="mono chart-value">7.69</text>
-        </g>
-        <g>
-          <rect x="150" y="67" width="422" height="18" rx="3" class="bar-candidate" />
-          <text x="4" y="80" class="node-label">DSE</text>
-          <text x="580" y="80" class="mono chart-value">5.40</text>
-        </g>
-        <g>
-          <rect x="150" y="95" width="422" height="18" rx="3" class="bar-candidate" />
-          <text x="4" y="108" class="node-label">B4GALT7</text>
-          <text x="580" y="108" class="mono chart-value">5.40</text>
-        </g>
-        <g>
-          <rect x="150" y="123" width="413" height="18" rx="3" class="bar-candidate" />
-          <text x="4" y="136" class="node-label">AEBP1</text>
-          <text x="571" y="136" class="mono chart-value">5.29</text>
-        </g>
-        <g>
-          <rect x="150" y="151" width="407" height="18" rx="3" class="bar-candidate" />
-          <text x="4" y="164" class="node-label">TGFB1</text>
-          <text x="565" y="164" class="mono chart-value">5.22</text>
-        </g>
-        <g>
-          <rect x="150" y="179" width="365" height="18" rx="3" class="bar-corroborated" />
-          <text x="4" y="192" class="node-label">SLC39A13</text>
-          <text x="523" y="192" class="mono chart-value">4.68</text>
-        </g>
-        <g>
-          <rect x="150" y="207" width="297" height="18" rx="3" class="bar-candidate" />
-          <text x="4" y="220" class="node-label">FKBP14</text>
-          <text x="455" y="220" class="mono chart-value">3.81</text>
-        </g>
-        <g>
-          <rect x="150" y="235" width="223" height="18" rx="3" class="bar-corroborated" />
-          <text x="4" y="248" class="node-label">VWF</text>
-          <text x="381" y="248" class="mono chart-value">2.86</text>
-        </g>
-        <g>
-          <rect x="150" y="263" width="221" height="18" rx="3" class="bar-corroborated" />
-          <text x="4" y="276" class="node-label">C1R</text>
-          <text x="379" y="276" class="mono chart-value">2.83</text>
-        </g>
-        <g>
-          <rect x="150" y="291" width="217" height="18" rx="3" class="bar-weak" />
-          <text x="4" y="304" class="node-label">BCL2A1</text>
-          <text x="375" y="304" class="mono chart-value">2.78</text>
-        </g>
-      </svg>
-    </div>
-    <figcaption>
-      Composite score per candidate gene: literature-bridge strength plus STRING, GTEx, and ClinVar
-      validation evidence. Full per-gene breakdown in <code>results/candidates.csv</code>.
-    </figcaption>
-  </figure>
-
-  <div class="table-scroll">
-    <table class="results">
-      <thead>
-        <tr><th>Gene</th><th class="score-cell">Score</th><th>Why it is here</th></tr>
-      </thead>
-      <tbody>
-        <tr><td class="gene-cell mono">PLOD1</td><td class="score-cell mono">7.69</td><td class="note-cell">Defines kyphoscoliotic EDS</td></tr>
-        <tr><td class="gene-cell mono">DSE</td><td class="score-cell mono">5.40</td><td class="note-cell">Defines musculocontractural EDS</td></tr>
-        <tr><td class="gene-cell mono">B4GALT7</td><td class="score-cell mono">5.40</td><td class="note-cell">Defines spondylodysplastic EDS</td></tr>
-        <tr><td class="gene-cell mono">AEBP1</td><td class="score-cell mono">5.29</td><td class="note-cell">Defines classical-like EDS</td></tr>
-        <tr><td class="gene-cell mono">TGFB1</td><td class="score-cell mono">5.22</td><td class="note-cell">The TGF-beta ligand itself</td></tr>
-        <tr class="highlight"><td class="gene-cell mono">SLC39A13</td><td class="score-cell mono">4.68</td><td class="note-cell callout">The gene from the retrospective test below</td></tr>
-        <tr><td class="gene-cell mono">FKBP14</td><td class="score-cell mono">3.81</td><td class="note-cell">Defines kyphoscoliotic EDS, type 2</td></tr>
-        <tr><td class="gene-cell mono">VWF</td><td class="score-cell mono">2.86</td><td class="note-cell callout">Real bridge via "bleedings," a documented hEDS symptom</td></tr>
-        <tr><td class="gene-cell mono">C1R</td><td class="score-cell mono">2.83</td><td class="note-cell callout">Matches an independent 2025-26 proteomics finding</td></tr>
-        <tr><td class="gene-cell mono">BCL2A1</td><td class="score-cell mono">2.78</td><td class="note-cell warn">Weak. Low expression, likely noise</td></tr>
-      </tbody>
-    </table>
-  </div>
-  <p>
-    Topping the list is PLOD1, which defines kyphoscoliotic EDS. Most of the rest,
-    AEBP1, DSE, B4GALT7, and FKBP14, are similarly genes that define other
-    EDS-spectrum disorders. That is a reasonable "maybe this whole gene family
-    matters here too" hypothesis, not individually shocking.
-  </p>
-  <p>
-    Three entries deserve individual attention, for different reasons.
-  </p>
-  <p>
-    <strong>C1R (complement C1r)</strong> independently lines up with a 2025 to 2026
-    proteomics paper that found complement-cascade proteins showing up differently in
-    hEDS patients' blood. We did not point the pipeline at it. It came out of the
-    graph structure on its own, and it happens to match a completely separate wet-lab
-    finding.
-  </p>
-  <p>
-    <strong>VWF (von Willebrand factor)</strong> reaches the list through a real,
-    coherent bridge concept, a symptom term meaning "bleedings" that shows up in 18
-    real hEDS papers. Bleeding and bruising tendency is a documented hEDS comorbidity,
-    and VWF is the gene behind a bleeding disorder. It has not been studied in hEDS by
-    name yet, but the shape of the evidence is the same as SLC39A13 before anyone
-    confirmed it.
-  </p>
-  <p>
-    <strong>BCL2A1</strong>, on the other hand, is probably noise, and we are saying
-    so plainly rather than hiding it. Its connective-tissue expression is negligible,
-    it is reached only through a chain of classical (not hypermobile) EDS papers, and
-    there is no obvious biological reason to expect it. We left it in the output
-    because hiding a weak result is worse than showing one clearly labeled as weak.
-  </p>
-</section>
-
 <section id="test">
   <h2 class="display">The real test</h2>
   <p>
-    A shortlist is a claim about the future. It says: these are worth a second look.
-    The only honest way to test a claim like that is to go back in time and see if it
-    would have held up. So we built a second script, <code>backtest.py</code>, that
-    reruns the exact same pipeline using only literature published before a chosen
-    cutoff year, and checks whether genes that real 2024 to 2025 hEDS genetics later
-    confirmed were already showing up as candidates before that confirmation existed.
+    This pipeline's whole output is a shortlist: a claim about the future that says
+    these genes are worth a second look (the current one is in
+    <a href="#found">What we found</a>, below). The only honest way to test a claim
+    like that is to go back in time and see if it would have held up. So we built a
+    second script, <code>backtest.py</code>, that reruns the exact same pipeline
+    using only literature published before a chosen cutoff year, and checks whether
+    genes that real 2024 to 2025 hEDS genetics later confirmed were already showing
+    up as candidates before that confirmation existed.
   </p>
 
   <figure class="diagram">
@@ -735,6 +617,141 @@
     nothing to offer for a genuinely de novo finding with no trace at all, and it is
     honest about the difference.
   </p>
+
+  <p>
+    That is the proof the method has a track record. Here is what it says about
+    right now.
+  </p>
+</section>
+
+<section id="found">
+  <h2 class="display">What we found</h2>
+  <p>
+    With that track record established: on the corpus we had while writing this
+    (1,301 abstracts, 1,345 entities, 20,238 co-occurrence edges), the pipeline
+    correctly filed 24 genes as "already studied," including COL3A1, COL6A3, SMAD3,
+    and TNXB, and surfaced 10 candidates.
+  </p>
+  <figure class="diagram">
+    <div class="frame">
+      <svg viewBox="0 0 820 330" role="img" aria-label="Bar chart of composite validation scores for the ten candidate genes, ranked highest to lowest: PLOD1 7.69, DSE 5.40, B4GALT7 5.40, AEBP1 5.29, TGFB1 5.22, SLC39A13 4.68, FKBP14 3.81, VWF 2.86, C1R 2.83, BCL2A1 2.78. SLC39A13, VWF, and C1R are marked independently corroborated by outside evidence; BCL2A1 is marked flagged weak.">
+        <g>
+          <circle cx="8" cy="10" r="5" class="bar-corroborated" />
+          <text x="18" y="14" class="node-sub">Independently corroborated</text>
+          <circle cx="230" cy="10" r="5" class="bar-weak" />
+          <text x="240" y="14" class="node-sub">Flagged weak</text>
+          <circle cx="360" cy="10" r="5" class="bar-candidate" />
+          <text x="370" y="14" class="node-sub">Candidate</text>
+        </g>
+        <line x1="150" y1="28" x2="150" y2="318" class="chart-axis" stroke-width="1" />
+        <g>
+          <rect x="150" y="39" width="600" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="52" class="node-label">PLOD1</text>
+          <text x="758" y="52" class="mono chart-value">7.69</text>
+        </g>
+        <g>
+          <rect x="150" y="67" width="422" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="80" class="node-label">DSE</text>
+          <text x="580" y="80" class="mono chart-value">5.40</text>
+        </g>
+        <g>
+          <rect x="150" y="95" width="422" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="108" class="node-label">B4GALT7</text>
+          <text x="580" y="108" class="mono chart-value">5.40</text>
+        </g>
+        <g>
+          <rect x="150" y="123" width="413" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="136" class="node-label">AEBP1</text>
+          <text x="571" y="136" class="mono chart-value">5.29</text>
+        </g>
+        <g>
+          <rect x="150" y="151" width="407" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="164" class="node-label">TGFB1</text>
+          <text x="565" y="164" class="mono chart-value">5.22</text>
+        </g>
+        <g>
+          <rect x="150" y="179" width="365" height="18" rx="3" class="bar-corroborated" />
+          <text x="4" y="192" class="node-label">SLC39A13</text>
+          <text x="523" y="192" class="mono chart-value">4.68</text>
+        </g>
+        <g>
+          <rect x="150" y="207" width="297" height="18" rx="3" class="bar-candidate" />
+          <text x="4" y="220" class="node-label">FKBP14</text>
+          <text x="455" y="220" class="mono chart-value">3.81</text>
+        </g>
+        <g>
+          <rect x="150" y="235" width="223" height="18" rx="3" class="bar-corroborated" />
+          <text x="4" y="248" class="node-label">VWF</text>
+          <text x="381" y="248" class="mono chart-value">2.86</text>
+        </g>
+        <g>
+          <rect x="150" y="263" width="221" height="18" rx="3" class="bar-corroborated" />
+          <text x="4" y="276" class="node-label">C1R</text>
+          <text x="379" y="276" class="mono chart-value">2.83</text>
+        </g>
+        <g>
+          <rect x="150" y="291" width="217" height="18" rx="3" class="bar-weak" />
+          <text x="4" y="304" class="node-label">BCL2A1</text>
+          <text x="375" y="304" class="mono chart-value">2.78</text>
+        </g>
+      </svg>
+    </div>
+    <figcaption>
+      Composite score per candidate gene: literature-bridge strength plus STRING, GTEx, and ClinVar
+      validation evidence. Full per-gene breakdown in <code>results/candidates.csv</code>.
+    </figcaption>
+  </figure>
+
+  <div class="table-scroll">
+    <table class="results">
+      <thead>
+        <tr><th>Gene</th><th class="score-cell">Score</th><th>Why it is here</th></tr>
+      </thead>
+      <tbody>
+        <tr><td class="gene-cell mono">PLOD1</td><td class="score-cell mono">7.69</td><td class="note-cell">Defines kyphoscoliotic EDS</td></tr>
+        <tr><td class="gene-cell mono">DSE</td><td class="score-cell mono">5.40</td><td class="note-cell">Defines musculocontractural EDS</td></tr>
+        <tr><td class="gene-cell mono">B4GALT7</td><td class="score-cell mono">5.40</td><td class="note-cell">Defines spondylodysplastic EDS</td></tr>
+        <tr><td class="gene-cell mono">AEBP1</td><td class="score-cell mono">5.29</td><td class="note-cell">Defines classical-like EDS</td></tr>
+        <tr><td class="gene-cell mono">TGFB1</td><td class="score-cell mono">5.22</td><td class="note-cell">The TGF-beta ligand itself</td></tr>
+        <tr class="highlight"><td class="gene-cell mono">SLC39A13</td><td class="score-cell mono">4.68</td><td class="note-cell callout">The gene from the retrospective test above</td></tr>
+        <tr><td class="gene-cell mono">FKBP14</td><td class="score-cell mono">3.81</td><td class="note-cell">Defines kyphoscoliotic EDS, type 2</td></tr>
+        <tr><td class="gene-cell mono">VWF</td><td class="score-cell mono">2.86</td><td class="note-cell callout">Real bridge via "bleedings," a documented hEDS symptom</td></tr>
+        <tr><td class="gene-cell mono">C1R</td><td class="score-cell mono">2.83</td><td class="note-cell callout">Matches an independent 2025-26 proteomics finding</td></tr>
+        <tr><td class="gene-cell mono">BCL2A1</td><td class="score-cell mono">2.78</td><td class="note-cell warn">Weak. Low expression, likely noise</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p>
+    Topping the list is PLOD1, which defines kyphoscoliotic EDS. Most of the rest,
+    AEBP1, DSE, B4GALT7, and FKBP14, are similarly genes that define other
+    EDS-spectrum disorders. That is a reasonable "maybe this whole gene family
+    matters here too" hypothesis, not individually shocking.
+  </p>
+  <p>
+    Three entries deserve individual attention, for different reasons.
+  </p>
+  <p>
+    <strong>C1R (complement C1r)</strong> independently lines up with a 2025 to 2026
+    proteomics paper that found complement-cascade proteins showing up differently in
+    hEDS patients' blood. We did not point the pipeline at it. It came out of the
+    graph structure on its own, and it happens to match a completely separate wet-lab
+    finding.
+  </p>
+  <p>
+    <strong>VWF (von Willebrand factor)</strong> reaches the list through a real,
+    coherent bridge concept, a symptom term meaning "bleedings" that shows up in 18
+    real hEDS papers. Bleeding and bruising tendency is a documented hEDS comorbidity,
+    and VWF is the gene behind a bleeding disorder. It has not been studied in hEDS by
+    name yet, but the shape of the evidence is the same as SLC39A13 before anyone
+    confirmed it.
+  </p>
+  <p>
+    <strong>BCL2A1</strong>, on the other hand, is probably noise, and we are saying
+    so plainly rather than hiding it. Its connective-tissue expression is negligible,
+    it is reached only through a chain of classical (not hypermobile) EDS papers, and
+    there is no obvious biological reason to expect it. We left it in the output
+    because hiding a weak result is worse than showing one clearly labeled as weak.
+  </p>
 </section>
 
 <section id="new">
@@ -790,27 +807,30 @@
 
 <section id="not-do">
   <h2 class="display">What we did not do, and why</h2>
-  <h3 class="display">Clustering patients into subtypes by symptoms</h3>
-  <p>
-    Already done, and done well. Mayo Clinic ran K-means and UMAP on more than 2,100
-    real patients and published real subtypes. We do not have that kind of data, and
-    running the same analysis on something worse would not add anything.
-  </p>
-  <h3 class="display">Wearables and video-based biomarkers</h3>
-  <p>
-    Genuinely exciting research: AI-scored hypermobility from video, wearable
-    heart-rate-variability tracking. Every dataset behind it is available on request
-    only, not public. That confirmed literature mining was the right lane for a
-    project built entirely on public data.
-  </p>
-  <h3 class="display">Swapping in SemMedDB instead of raw co-occurrence</h3>
-  <p>
-    SemMedDB gives semantic relationships instead of "these two things appeared near
-    each other," which sounds strictly better. It was deprecated in December 2024 and
-    has not been updated since, so it would miss both the 2025 GWAS paper and the
-    2024 KLK15 finding above, and it needs a UMLS license to even access. Not worth
-    the tradeoff for something meant to stay current and easy to run.
-  </p>
+  <details>
+    <summary>Three things worth naming, and why each one was skipped</summary>
+    <h3 class="display">Clustering patients into subtypes by symptoms</h3>
+    <p>
+      Already done, and done well. Mayo Clinic ran K-means and UMAP on more than 2,100
+      real patients and published real subtypes. We do not have that kind of data, and
+      running the same analysis on something worse would not add anything.
+    </p>
+    <h3 class="display">Wearables and video-based biomarkers</h3>
+    <p>
+      Genuinely exciting research: AI-scored hypermobility from video, wearable
+      heart-rate-variability tracking. Every dataset behind it is available on request
+      only, not public. That confirmed literature mining was the right lane for a
+      project built entirely on public data.
+    </p>
+    <h3 class="display">Swapping in SemMedDB instead of raw co-occurrence</h3>
+    <p>
+      SemMedDB gives semantic relationships instead of "these two things appeared near
+      each other," which sounds strictly better. It was deprecated in December 2024 and
+      has not been updated since, so it would miss both the 2025 GWAS paper and the
+      2024 KLK15 finding above, and it needs a UMLS license to even access. Not worth
+      the tradeoff for something meant to stay current and easy to run.
+    </p>
+  </details>
 </section>
 
 <section id="check">
@@ -860,13 +880,13 @@
 
 <section id="not">
   <h2 class="display">What this is not</h2>
-  <p>
+  <div class="pull">
     This is a hypothesis-generating research tool, not a diagnostic instrument. There
     is no confirmed diagnostic biomarker for hEDS in the published literature. Not
     from this project, not from anyone, not yet. Nothing here should be used to
     include, exclude, or otherwise influence an actual diagnosis. At best, a
     candidate on this list is a starting point for someone with a lab to look closer.
-  </p>
+  </div>
 </section>
 
 <section id="try">

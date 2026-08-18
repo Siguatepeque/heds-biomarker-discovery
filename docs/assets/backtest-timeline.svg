@@ -1,0 +1,58 @@
+<svg viewBox="-20 -20 800 250" xmlns="http://www.w3.org/2000/svg" role="img"
+     aria-label="Timeline: SLC39A13 named in 2020-21 for a different, rare EDS subtype. Using literature only through 2021, an indirect literature bridge to hEDS already clears the pipeline's detection threshold, flagging SLC39A13 as a candidate. In September 2025, an independent GWAS study of 1,800 patients found genome-wide-significant signal at SLC39A13, more than three and a half years later. As of today, only the GWAS paper itself directly links hEDS and SLC39A13 in the literature, so a second independent paper has not caught up yet.">
+  <style>
+    .bg { fill: #ffffff; }
+    .frame { stroke: #dcdfd8; }
+    .axis { stroke: #14171b; opacity: 0.35; }
+    .dot-neutral { fill: #14171b; opacity: 0.6; }
+    .dot-thesis { fill: #8c611f; }
+    .dot-proof { fill: #2c7a64; }
+    .arc-thesis { stroke: #8c611f; }
+    .arrow-head { fill: #8c611f; }
+    .node-label { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 14px; font-weight: 600; fill: #14171b; }
+    .node-label.thesis { fill: #8c611f; }
+    .node-label.proof { fill: #2c7a64; }
+    .node-sub { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11px; fill: #5b6058; }
+    .edge-thesis { font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif; font-size: 11px; font-style: italic; fill: #8c611f; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #1b2025; }
+      .frame { stroke: #2b3130; }
+      .axis { stroke: #eceee9; }
+      .dot-neutral { fill: #eceee9; }
+      .dot-thesis { fill: #d9a75c; }
+      .dot-proof { fill: #5fbba0; }
+      .arc-thesis { stroke: #d9a75c; }
+      .arrow-head { fill: #d9a75c; }
+      .node-label { fill: #eceee9; }
+      .node-label.thesis { fill: #d9a75c; }
+      .node-label.proof { fill: #5fbba0; }
+      .node-sub { fill: #9aa39b; }
+      .edge-thesis { fill: #d9a75c; }
+    }
+  </style>
+  <rect x="-20" y="-20" width="800" height="250" rx="10" class="bg frame" stroke-width="1" />
+  <defs>
+    <marker id="arrow-gold" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" class="arrow-head" />
+    </marker>
+  </defs>
+  <line x1="60" y1="140" x2="700" y2="140" class="axis" stroke-width="1" />
+  <path d="M 330 100 C 330 38, 520 38, 520 100" fill="none" class="arc-thesis" stroke-width="1.3" marker-end="url(#arrow-gold)" />
+  <text x="425" y="28" text-anchor="middle" class="edge-thesis">3.5+ years ahead of the field</text>
+  <circle cx="100" cy="140" r="5" class="dot-neutral" />
+  <text x="100" y="120" text-anchor="middle" class="node-label">2020-21</text>
+  <text x="100" y="163" text-anchor="middle" class="node-sub">SLC39A13 named for a</text>
+  <text x="100" y="178" text-anchor="middle" class="node-sub">different, rare EDS subtype</text>
+  <circle cx="330" cy="140" r="7" class="dot-thesis" />
+  <text x="330" y="120" text-anchor="middle" class="node-label thesis">By 2022</text>
+  <text x="330" y="163" text-anchor="middle" class="node-sub">Literature bridge already</text>
+  <text x="330" y="178" text-anchor="middle" class="node-sub">clears threshold, pipeline flags it</text>
+  <circle cx="520" cy="140" r="7" class="dot-proof" />
+  <text x="520" y="120" text-anchor="middle" class="node-label proof">Sep 2025</text>
+  <text x="520" y="163" text-anchor="middle" class="node-sub">Independent GWAS finds a</text>
+  <text x="520" y="178" text-anchor="middle" class="node-sub">genome-wide-significant hit</text>
+  <circle cx="660" cy="140" r="5" class="dot-neutral" />
+  <text x="660" y="120" text-anchor="middle" class="node-label">Today</text>
+  <text x="660" y="163" text-anchor="middle" class="node-sub">Only the GWAS paper itself</text>
+  <text x="660" y="178" text-anchor="middle" class="node-sub">links them, still not "established"</text>
+</svg>
