@@ -150,10 +150,9 @@ in the [research paper](https://siguatepeque.github.io/heds-biomarker-discovery/
 One more honest thing, checked just now. SLC39A13 is still classified as a candidate
 today, not yet "already studied," even eleven months after the GWAS. Exactly one
 document in the whole corpus directly co-mentions hEDS and SLC39A13: the GWAS preprint
-itself. No second paper has echoed the connection yet. That is a separate finding
-about the corpus rather than about the method: the literature index can lag a real
-discovery by the better part of a year after it is published, and that lag is the
-gap this kind of tool sits in.
+itself. No second paper has echoed the connection yet. So the literature index can lag
+a real discovery by the better part of a year after publication, though this is one
+case and I don't know how general it is.
 
 That is the positive control: a real gene, correctly flagged early. A method that only
 ever says yes is not proof of anything, so it needs a negative control too.
@@ -192,11 +191,12 @@ of the 8 real GWAS genes, and none match the older, weaker fibromyalgia candidat
 literature either (GCH1, COMT, OPRM1). What they have in common is thematic, not
 genetic: Nrf2, Bax, and PGC-1alpha are recurring names in fibromyalgia's
 oxidative-stress/mitochondrial-dysfunction mechanistic literature, a popular framing
-that is not itself a genetic finding. That is a real, named limitation, not a clean
-pass: bridge degree alone doesn't distinguish a specific-and-wrong bridge concept from a
-specific-and-right one, and a large enough non-genetic literature can still clear the
-hub-degree filter. Full cutoff-by-cutoff numbers, citations, and the established-gene
-check are in `results/control_backtest.txt`.
+that is not itself a genetic finding. Bridge degree alone doesn't distinguish a
+specific-and-wrong bridge concept from a specific-and-right one, and a large enough
+non-genetic literature can still clear the hub-degree filter. I don't have a fix for
+that, and I'm not sure there is one that doesn't just move the problem somewhere else.
+Full cutoff-by-cutoff numbers, citations, and the established-gene check are in
+`results/control_backtest.txt`.
 
 ## What we found
 
@@ -249,12 +249,12 @@ here is clean, the same shape as the SLC39A13 case before anyone confirmed it.
 Not everything on the list deserves that kind of confidence. **BCL2A1** is here too,
 and I think it is mostly noise: low connective-tissue expression (3.5 TPM), reached
 only through a chain of classical (not hypermobile) EDS papers, and no clear
-biological reason to expect it. I am leaving it in the output because hiding a weak
-result is worse than showing one, but it should be read as weak.
+biological reason to expect it. I left it in anyway. Honestly I'm not sure that's the
+right call, but dropping it quietly felt worse. Read it as weak.
 
 ACKR3 and MIA3, two of the newest 2024 to 2025 hEDS genes, do not show up in the
-corpus at all yet. That is a data-freshness limit of the underlying literature index,
-not a bug in the pipeline.
+corpus at all yet, so the pipeline has nothing to work with for either. I assume that
+is the literature index lagging, but I have not checked it properly.
 
 ## What's new here
 
@@ -312,7 +312,7 @@ and easy to run.
 
 ## What to be skeptical of
 
-I would rather name the weak points myself than have you find them.
+These are the parts I'm least sure about.
 
 - **VWF and C1R are today's live candidates, and they deserve harder scrutiny than
   a single pass.** Both reach the list the way SLC39A13 did before its GWAS
@@ -322,8 +322,8 @@ I would rather name the weak points myself than have you find them.
   proteomics finding is suggestive, not something I have independently re-verified.
   Run `backtest.py` and the graph queries in `results/backtest.txt` yourself before
   treating either as more than a lead.
-- **BCL2A1 is flagged weak on purpose.** I left it in the shortlist instead of quietly
-  dropping it. Read it as "the pipeline's noise floor," not as a finding.
+- **BCL2A1 is weak.** It sits in the shortlist as the pipeline's noise floor. Don't
+  read it as a finding.
 - **The seed-matching patterns in `discover_candidates.py` are a hand-built list.** I
   found and fixed two false positives in that exact list while building this project.
   There could be a third I have not found. If you add a new disease term to the search

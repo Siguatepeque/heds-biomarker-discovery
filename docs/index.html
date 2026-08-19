@@ -600,10 +600,9 @@
     as a candidate today, not yet "already studied," even eleven months after the
     GWAS. Exactly one document in the whole corpus directly co-mentions hEDS and
     SLC39A13: the GWAS preprint itself. No second paper has echoed the connection yet,
-    so it has not cleared this method's own two-paper bar for "established." That is
-    a separate finding about the corpus rather than about the method: the literature
-    index can lag a real discovery by the better part of a year after it is published,
-    and that lag is the gap this kind of tool sits in.
+    so it has not cleared this method's own two-paper bar for "established." So the
+    literature index can lag a real discovery by the better part of a year after
+    publication, though this is one case and we do not know how general it is.
   </p>
 
   <p>
@@ -674,10 +673,10 @@
   </div>
 
   <p>
-    That is a clean negative, not an artifact of an empty corpus. By 2026 the corpus has
-    4,245 documents and 45,373 edges, bigger than the entire hEDS corpus, all 8 target
-    genes are present in the graph, and the method still declines to call any of them a
-    candidate. The one gene that changes status, DCC, moves straight from "present but
+    By 2026 the corpus has 4,245 documents and 45,373 edges, bigger than the entire
+    hEDS corpus, and all 8 target genes are present in the graph. The method still
+    declines to call any of them a candidate, so this is not just an empty corpus
+    with nothing to find. The one gene that changes status, DCC, moves straight from "present but
     below the bridge floor" to "already directly studied," the same pattern SLC39A13
     showed in the real backtest: some 2026 document, almost certainly the GWAS paper
     itself, mentions it alongside fibromyalgia directly.
@@ -689,10 +688,11 @@
     either. What they have in common is thematic, not genetic: Nrf2, Bax, and
     PGC-1alpha are recurring names in fibromyalgia's oxidative-stress and
     mitochondrial-dysfunction literature, a popular framing that is not itself a
-    genetic finding. That is a real, named limitation, not a clean pass. Bridge degree
-    alone does not distinguish a specific-but-wrong bridge concept from a
-    specific-and-right one, and a large enough non-genetic literature can still clear
-    the hub-degree filter. Full cutoff-by-cutoff numbers and citations are in
+    genetic finding. Bridge degree alone does not distinguish a specific-but-wrong
+    bridge concept from a specific-and-right one, and a large enough non-genetic
+    literature can still clear the hub-degree filter. We do not have a fix for that,
+    and we are not sure there is one that doesn't just move the problem somewhere
+    else. Full cutoff-by-cutoff numbers and citations are in
     <code>results/control_backtest.txt</code>.
   </p>
 </section>
@@ -819,11 +819,11 @@
     confirmed it.
   </p>
   <p>
-    <strong>BCL2A1</strong>, on the other hand, is probably noise, and we are saying
-    so plainly rather than hiding it. Its connective-tissue expression is negligible,
-    it is reached only through a chain of classical (not hypermobile) EDS papers, and
-    there is no obvious biological reason to expect it. We left it in the output
-    because hiding a weak result is worse than showing one clearly labeled as weak.
+    <strong>BCL2A1</strong>, on the other hand, is probably noise. Its
+    connective-tissue expression is negligible, it is reached only through a chain of
+    classical (not hypermobile) EDS papers, and there is no obvious biological reason
+    to expect it. We left it in anyway. We are honestly not sure that is the right
+    call, but dropping it quietly felt worse.
   </p>
 </section>
 
@@ -909,7 +909,7 @@
 <section id="check">
   <h2 class="display">What to be skeptical of</h2>
   <p>
-    We would rather name the weak points ourselves than have you find them.
+    These are the parts we are least sure about.
   </p>
   <ul class="check-list">
     <li>
@@ -922,8 +922,8 @@
     <li>
       <span class="check-mark">&#9998;</span>
       <span class="check-body">
-        <strong>BCL2A1 is flagged weak on purpose.</strong>
-        <span>We left it in the shortlist instead of quietly dropping it. Read it as the pipeline's noise floor, not as a finding.</span>
+        <strong>BCL2A1 is weak.</strong>
+        <span>It sits in the shortlist as the pipeline's noise floor. Don't read it as a finding.</span>
       </span>
     </li>
     <li>
