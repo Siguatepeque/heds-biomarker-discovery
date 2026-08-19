@@ -4,11 +4,11 @@
 ![License: MIT](https://img.shields.io/badge/license-MIT-2c7a64)
 [![Full write-up: live](https://img.shields.io/badge/full%20write--up-live-8c611f)](https://siguatepeque.github.io/heds-biomarker-discovery/)
 
-A pipeline that reads PubMed for a living. It mines the research literature on
-hypermobile Ehlers-Danlos Syndrome (hEDS) looking for genes that show up near the
-disease in the writing, without ever being studied in it directly. The output is a
-short, ranked list of hypotheses worth a second look. Not a diagnosis, not a test.
-A lead list.
+This pipeline mines the research literature on hypermobile Ehlers-Danlos Syndrome
+(hEDS) for genes that show up near the disease in the writing without ever being
+studied in it directly. What comes out is a short, ranked list of genes worth a
+second look, which is a starting point for research and not a diagnostic test of
+any kind.
 
 **Full write-up:** [siguatepeque.github.io/heds-biomarker-discovery](https://siguatepeque.github.io/heds-biomarker-discovery/)
 reads more like a normal article. This README is the developer-facing version.
@@ -43,8 +43,8 @@ hypothesis-generating tool, not a diagnostic one.
 > [!NOTE]
 > This is a backtest, not a prediction, and it only held up after two rounds of
 > finding and fixing real bugs in my own code, see [The real test](#the-real-test).
-> Full candidate list and methodology in [What we found](#what-we-found); what to be
-> skeptical of in [Hey please check this!](#hey-please-check-this).
+> Full candidate list and methodology in [What we found](#what-we-found), and the
+> weak points in [What to be skeptical of](#what-to-be-skeptical-of).
 
 ## Contents
 
@@ -59,7 +59,7 @@ hypothesis-generating tool, not a diagnostic one.
 9. [What's new here](#whats-new-here)
 10. [What backs this up](#what-backs-this-up)
 11. [What I decided not to do, and why](#what-i-decided-not-to-do-and-why)
-12. [Hey please check this!](#hey-please-check-this)
+12. [What to be skeptical of](#what-to-be-skeptical-of)
 13. [What this is not](#what-this-is-not)
 14. [Running it](#running-it)
 15. [Does it actually work?](#does-it-actually-work)
@@ -109,8 +109,8 @@ public data. No lab access required, no patient data touched at any point.
    neighbor math that discounts generic bridge terms (things like "pain," which
    connect to almost everything) more than specific ones. This distinction matters a
    lot. Raw co-occurrence counting alone is a known source of false positives in this
-   kind of work, and it bit me twice during development (see [Hey please check
-   this](#hey-please-check-this)).
+   kind of work, and it bit me twice during development (see [What to be skeptical
+   of](#what-to-be-skeptical-of)).
 4. **Validate** (`validate_candidates.py`). Before anything makes the final list, it
    gets checked against three independent public sources: STRING (does it physically
    interact with a known hEDS-relevant protein), GTEx (is it actually expressed in
@@ -121,13 +121,12 @@ public data. No lab access required, no patient data touched at any point.
 ## The real test
 
 Before trusting any candidate this pipeline produces, it's worth asking whether its
-shortlists mean anything at all. A shortlist is a claim about the future: these are
-worth a second look. The only honest way to test that claim is to go back in time.
-`backtest.py` reruns the exact same pipeline using only literature published before a
-chosen cutoff year (the cached documents each carry their own publication date, so
-this needs no new network calls), and checks whether genes that real 2024 to 2025
-hEDS genetics later confirmed were already showing up as candidates before that
-confirmation existed.
+shortlists mean anything at all. The only honest way to check is to go back in time
+and see whether an old shortlist would have held up. `backtest.py` reruns the exact
+same pipeline using only literature published before a chosen cutoff year (the cached
+documents each carry their own publication date, so this needs no new network calls),
+and checks whether genes that real 2024 to 2025 hEDS genetics later confirmed were
+already showing up as candidates before that confirmation existed.
 
 ```
 python backtest.py --cutoffs 2019 2020 2021 2022 2023 2024 2025 2026
@@ -151,10 +150,10 @@ in the [research paper](https://siguatepeque.github.io/heds-biomarker-discovery/
 One more honest thing, checked just now. SLC39A13 is still classified as a candidate
 today, not yet "already studied," even eleven months after the GWAS. Exactly one
 document in the whole corpus directly co-mentions hEDS and SLC39A13: the GWAS preprint
-itself. No second paper has echoed the connection yet. That is not a weakness in the
-method. It is a real, separate observation: the literature index can lag a genuine
-discovery by the better part of a year even after publication, which is exactly the
-kind of gap a tool like this is positioned to notice.
+itself. No second paper has echoed the connection yet. That is a separate finding
+about the corpus rather than about the method: the literature index can lag a real
+discovery by the better part of a year after it is published, and that lag is the
+gap this kind of tool sits in.
 
 That is the positive control: a real gene, correctly flagged early. A method that only
 ever says yes is not proof of anything, so it needs a negative control too.
@@ -201,10 +200,9 @@ check are in `results/control_backtest.txt`.
 
 ## What we found
 
-With that track record established: on the corpus I had while writing this (1,301
-abstracts, 1,345 entities, 20,238 co-occurrence edges), the pipeline correctly filed
-24 genes as "already studied," including COL3A1, COL6A3, SMAD3, and TNXB, and
-surfaced 10 candidates.
+On the corpus I had while writing this (1,301 abstracts, 1,345 entities, 20,238
+co-occurrence edges), the pipeline correctly filed 24 genes as "already studied,"
+including COL3A1, COL6A3, SMAD3, and TNXB, and surfaced 10 candidates.
 
 ![Composite score per candidate gene, PLOD1 highest at 7.69 down to BCL2A1 at 2.78](docs/assets/candidates-chart.svg)
 
@@ -312,9 +310,9 @@ and easy to run.
 
 </details>
 
-## Hey please check this!
+## What to be skeptical of
 
-I would rather tell you exactly what to be skeptical of than let you find it yourself.
+I would rather name the weak points myself than have you find them.
 
 - **VWF and C1R are today's live candidates, and they deserve harder scrutiny than
   a single pass.** Both reach the list the way SLC39A13 did before its GWAS
@@ -385,8 +383,7 @@ the latest release of each still compatible with Python 3.9+ as of 2026-08-18.
   echoes the GWAS finding directly.
 - And the one I cannot automate away: read the top candidates yourself. Look at the
   bridge concept connecting them to hEDS and ask whether it is real biology or an
-  annotation glitch. This is a hypothesis generator, not an oracle. That check is what
-  makes the output mean anything.
+  annotation glitch. Nothing in the output means much until someone has done that.
 
 ## References
 
