@@ -1,14 +1,17 @@
 """CLI: run the same literature-based discovery pipeline as pipeline.py, but on the
-fibromyalgia negative control instead of hEDS.
+fibromyalgia plausibility control instead of hEDS.
 
 fetch (PubMed + PubTator3, control query) -> graph -> discover (ABC-model, control
-seeds) -> validate (STRING/GTEx/ClinVar, unchanged) -> results/control_candidates.csv
+seeds) -> annotate (STRING/GTEx/ClinVar plausibility signals, unchanged) ->
+results/control_candidates.csv
 
 Reuses fetch_corpus / build_graph / discover / validate completely unchanged. The
 only difference from pipeline.py is which query and seed patterns are active while
 those functions run - swapped in by temporarily overriding the relevant module-level
 constants in fetch_literature and discover_candidates, then restoring them. Those
-two modules' own code, and everything on the hEDS path, is untouched.
+two modules' own code, and everything on the hEDS path, is untouched. Control
+candidate yield is context for the method's behavior, not a specificity proof for
+any hEDS candidate.
 """
 import argparse
 from pathlib import Path
@@ -70,12 +73,12 @@ def main():
     save_graph(graph, RESULTS_DIR / "control_graph.graphml")
 
     print("Running ABC-model discovery...")
-    long_list, already_studied = discover_control(
+    long_list, directly_mentioned = discover_control(
         graph, documents, min_weight=args.min_weight, max_bridge_degree=args.max_bridge_degree
     )
-    print(f"  {len(long_list)} candidates, {len(already_studied)} already-studied genes excluded")
+    print(f"  {len(long_list)} candidates, {len(directly_mentioned)} directly-mentioned genes excluded")
 
-    print("Cross-validating candidates against STRING/GTEx/ClinVar...")
+    print("Annotating candidates with STRING/GTEx/ClinVar plausibility signals...")
     shortlist = validate(long_list, top_n=args.top_n)
     out_path = RESULTS_DIR / "control_candidates.csv"
     pd.DataFrame(shortlist).to_csv(out_path, index=False)

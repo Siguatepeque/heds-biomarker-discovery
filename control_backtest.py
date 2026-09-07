@@ -1,13 +1,10 @@
-"""Negative-control backtest: rerun backtest.py's retrospective-validation machinery
+"""Plausibility-control backtest: rerun backtest.py's retrospective-retrieval machinery
 on the fibromyalgia control corpus instead of hEDS.
 
-Fibromyalgia has no gene that has reached genome-wide significance and replicated the
-way SLC39A13 did for hEDS (see controls.py), so the honest expected outcome is that no
-control candidate should show that "flagged years early, later confirmed" pattern.
-This script doesn't hardcode a target-gene list to check against, the way backtest.py
-checks KLK15/ACKR3/SLC39A13/MIA3, because there is no established fibromyalgia gene to
-check against - that's the point of the control. Read results/control_backtest.txt for
-the actual established-gene check, done by hand against OMIM/GWAS Catalog.
+Control candidate yield is context for how the method behaves on another disease,
+not a specificity proof for any hEDS candidate: fibromyalgia now has
+genome-wide-significant loci of its own (see below), so presence or absence of a
+"retrieved early" pattern here neither validates nor invalidates the hEDS run.
 
 Reuses backtest.filter_before and backtest.run_cutoff completely unchanged. Only the
 corpus (control_disease.fetch_control_corpus) and seed patterns
@@ -38,23 +35,25 @@ TARGET_GENES = {
 }
 
 
-def report_control(cutoff_year, subset, graph, long_list, already_studied):
+def report_control(cutoff_year, subset, graph, long_list, directly_mentioned):
     print(f"\n=== Cutoff: papers before {cutoff_year} ===")
     print(f"  {len(subset)} documents, {graph.number_of_nodes()} nodes, {graph.number_of_edges()} edges")
     if long_list is None:
         print("  No fibromyalgia seed mentions in this subset - too little corpus yet.")
         return
-    print(f"  {len(long_list)} candidates, {len(already_studied)} already-studied genes")
+    total = len(long_list)
+    print(f"  {total} indirect candidates (genes never directly mentioned alongside fibromyalgia in this subset)")
     for _, row in long_list.head(5).iterrows():
         print(f"  top candidate: {row['name']:20s} (score {row['adamic_adar_score']:.2f})")
 
-    candidate_ids = set(long_list["node_id"]) if len(long_list) else set()
+    rank = {row["node_id"]: i + 1 for i, row in long_list.iterrows()}
+    candidate_ids = set(long_list["node_id"]) if total else set()
     for node_id, label in TARGET_GENES.items():
-        if node_id in already_studied:
-            print(f"  {label:8s} -> ALREADY DIRECTLY STUDIED by {cutoff_year}")
+        if node_id in directly_mentioned:
+            print(f"  {label:8s} -> DIRECTLY MENTIONED by {cutoff_year} (not an indirect-candidate case)")
         elif node_id in candidate_ids:
             score = long_list.loc[long_list["node_id"] == node_id, "adamic_adar_score"].iloc[0]
-            print(f"  {label:8s} -> CANDIDATE before {cutoff_year} (score {score:.2f}) - would have been flagged")
+            print(f"  {label:8s} -> retrieved as candidate rank {rank[node_id]}/{total} before {cutoff_year} (score {score:.2f})")
         elif node_id in graph.nodes:
             print(f"  {label:8s} -> present in corpus but not a candidate (degree {graph.degree(node_id)})")
         else:
@@ -77,8 +76,8 @@ if __name__ == "__main__":
     discover_candidates.EXCLUDE_PATTERNS = CONTROL_EXCLUDE_PATTERNS
     try:
         for year in args.cutoffs:
-            subset, graph, long_list, already_studied = run_cutoff(documents, year)
-            report_control(year, subset, graph, long_list, already_studied)
+            subset, graph, long_list, directly_mentioned = run_cutoff(documents, year)
+            report_control(year, subset, graph, long_list, directly_mentioned)
     finally:
         discover_candidates.SEED_PATTERNS = original_seeds
         discover_candidates.EXCLUDE_PATTERNS = original_excludes

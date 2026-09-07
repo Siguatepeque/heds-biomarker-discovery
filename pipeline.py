@@ -36,12 +36,12 @@ def main():
     save_graph(graph, RESULTS_DIR / "graph.graphml")
 
     print("Running ABC-model discovery...")
-    long_list, already_studied = discover(
+    long_list, directly_mentioned = discover(
         graph, documents, min_weight=args.min_weight, max_bridge_degree=args.max_bridge_degree
     )
-    print(f"  {len(long_list)} candidates, {len(already_studied)} already-studied genes excluded")
+    print(f"  {len(long_list)} candidates, {len(directly_mentioned)} directly-mentioned genes excluded")
 
-    print("Cross-validating candidates against STRING/GTEx/ClinVar...")
+    print("Annotating candidates with STRING/GTEx/ClinVar plausibility signals...")
     shortlist = validate(long_list, top_n=args.top_n)
     out_path = RESULTS_DIR / "candidates.csv"
     pd.DataFrame(shortlist).to_csv(out_path, index=False)

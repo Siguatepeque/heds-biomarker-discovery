@@ -1,7 +1,9 @@
 """Fetch hEDS/HSD-related PubMed literature and PubTator3 entity annotations.
 
-Scoped to hEDS/HSD terminology specifically (not bare "Ehlers-Danlos syndrome"),
-so genes specific to other EDS subtypes (classical, vascular) don't pollute the corpus.
+Scoped to hEDS/HSD terminology specifically (not bare "Ehlers-Danlos syndrome")
+to reduce genes from other EDS subtypes (classical, vascular) in the corpus.
+Filtering by query terms cannot fully exclude them: shared terminology and
+co-mentions still let other-subtype genes in.
 """
 import argparse
 import hashlib

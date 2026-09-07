@@ -22,6 +22,8 @@ def main():
         "hEDS seed patterns must not match the control disease's own name"
     assert not discover_candidates._is_seed_mention("fibromyalgia syndrome"), \
         "hEDS seed patterns must not match the control disease's own name"
+    assert discover_candidates._is_seed_mention("hEDS"), \
+        "hEDS abbreviation must match under the hEDS config"
 
     # Swap in the control config, same mechanism control_disease.py uses.
     discover_candidates.SEED_PATTERNS = CONTROL_SEED_PATTERNS
@@ -35,6 +37,8 @@ def main():
             "control seed patterns must not match hEDS text"
         assert not discover_candidates._is_seed_mention("joint hypermobility syndrome"), \
             "control seed patterns must not match hEDS text"
+        assert not discover_candidates._is_seed_mention("hEDS"), \
+            "control seed patterns must not match the hEDS abbreviation alias"
         assert not discover_candidates._is_seed_mention("fibromyalgia-like symptoms in long COVID"), \
             "control exclude patterns must filter out comparator usage, not a real diagnosis"
     finally:
@@ -44,6 +48,8 @@ def main():
     # Swap must be fully reversible: hEDS behavior restored afterward.
     assert discover_candidates._is_seed_mention("hypermobile Ehlers-Danlos syndrome"), \
         "hEDS seed patterns must be restored after the control swap"
+    assert discover_candidates._is_seed_mention("hEDS"), \
+        "hEDS abbreviation alias must be restored after the control swap"
     assert not discover_candidates._is_seed_mention("fibromyalgia"), \
         "hEDS seed patterns must not match fibromyalgia after the swap is undone"
     assert discover_candidates.SEED_PATTERNS == original_seeds

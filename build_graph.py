@@ -9,6 +9,42 @@ import networkx as nx
 KEPT_TYPES = {"Gene", "Disease", "Chemical"}
 
 
+def doc_identity(doc):
+    """Resolved identity of one BioC document: explicit ``pmid`` or ``id``.
+
+    Numeric and string forms of the same identifier collapse (``123`` == ``"123"``).
+    Returns None for anonymous documents (no usable ``pmid``/``id``).
+    """
+    for field in ("pmid", "id"):
+        value = doc.get(field)
+        if value is None:
+            continue
+        text = str(value).strip()
+        if text:
+            return text
+    return None
+
+
+def dedupe_documents(documents):
+    """Collapse repeat documents to one each (first occurrence wins).
+
+    Counts each PMID (or BioC ``id`` fallback) only once so a cached article stored
+    twice cannot double edge weights or seed counts. Anonymous documents without a
+    usable ``pmid``/``id`` (e.g. synthetic test fixtures) are keyed by object identity
+    so distinct ones never collapse together.
+    """
+    seen = set()
+    unique = []
+    for doc in documents:
+        ident = doc_identity(doc)
+        key = ("doc", ident) if ident is not None else ("obj", id(doc))
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(doc)
+    return unique
+
+
 def _node_id(infons):
     identifier = infons.get("identifier")
     entity_type = infons.get("type")
@@ -37,6 +73,7 @@ def _pairs(items):
 def build_graph(documents):
     """Co-occurrence graph: nodes = bioconcepts, edges weighted by shared-abstract count,
     with a PMI attribute (log(P(a,b) / (P(a)*P(b)))) estimated from document frequency."""
+    documents = dedupe_documents(documents)
     graph = nx.Graph()
     doc_entity_sets = [e for e in (document_entities(d) for d in documents) if e]
     doc_count = len(doc_entity_sets)
