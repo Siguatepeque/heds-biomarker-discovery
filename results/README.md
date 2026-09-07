@@ -1,15 +1,11 @@
 # Saved results
 
-The numeric files retain the original results from before the September 2026
-code corrections. They have not been regenerated in this review.
-
-* `candidates.csv`, `graph.graphml`, `control_candidates.csv`,
-  `control_graph.graphml`: tracked snapshot from before the code corrections.
-  Left as committed, not refreshed, not current outputs. The pipeline writes
-  into `results/` on a deliberate rerun, so this is a snapshot, not a
-  permanent archive; a rerun after code corrections overwrites these files
-  and will differ.
+* `candidates.csv`: refreshed 7 September 2026 with the corrected code and
+  live STRING/GTEx/ClinVar annotation (4 indirect candidates). Current output.
+* `graph.graphml`, `control_candidates.csv`, `control_graph.graphml`:
+  snapshots from before the September 2026 code corrections. Left as
+  committed, not refreshed.
 * `backtest.txt`, `control_backtest.txt`: legacy reports. Cutoff blocks and
-  numeric tables preserved as run. Surrounding interpretation revised to
-  correct their interpretation. The root README records the corrected hEDS
-  offline run. The fibromyalgia run has not been repeated.
+  numeric tables preserved as run; surrounding interpretation revised. The
+  root README records the corrected hEDS offline run. The fibromyalgia run
+  has not been repeated.

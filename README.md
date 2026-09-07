@@ -11,24 +11,21 @@ for the evidence review. This file documents the code.
 
 ## Archive status
 
-`results/candidates.csv`, `results/graph.graphml`,
-`results/control_candidates.csv`, and `results/control_graph.graphml` are the
-tracked snapshot from before the September 2026 code corrections: left as committed,
-not refreshed, and not current outputs. The pipeline writes into `results/` on
-a deliberate rerun, so this is a snapshot, not a permanent archive. A rerun
-with the corrected code overwrites these files and will not
-produce identical numbers.
+`results/candidates.csv` was refreshed on 7 September 2026 with the corrected
+code and live STRING/GTEx/ClinVar annotation: 1,301 unique documents, 1,345
+entities, 20,238 edges, 132 directly mentioned genes excluded, 4 indirect
+candidates. SLC39A13, C1R, and VWF are excluded because they have direct
+mentions. Annotation values are live lookups from that date, not fixed constants;
+a rerun can return different STRING/GTEx/ClinVar values.
 
-`results/backtest.txt` and `results/control_backtest.txt` are legacy reports.
-Their cutoff blocks and numeric tables are preserved as run. The surrounding
-interpretation in those files has been revised. The corrected offline run on
-7 September 2026 used 1,301 unique documents and returned four indirect candidates:
-PLOD1, AEBP1, BCL2A1 (displayed as `alpha1` by PubTator), and FKBP14. SLC39A13,
-C1R, and VWF are now excluded because they have direct mentions. The API
-annotation stage was not rerun; these are graph results, not new composite scores.
+`results/graph.graphml`, `results/control_candidates.csv`, and
+`results/control_graph.graphml` remain snapshots from before the September 2026
+code corrections: left as committed, not refreshed. `results/backtest.txt` and
+`results/control_backtest.txt` are legacy reports. Their cutoff blocks and numeric
+tables are preserved as run; the surrounding interpretation has been revised.
 
-Corrected rerun behavior, where it differs from the snapshot, is described in
-[Method](#method). The snapshot used the original method.
+Where behavior differs from the original method, it is described in
+[Method](#method).
 
 ## Method
 
@@ -69,28 +66,24 @@ Definitions used here:
   unchanged; the two-document floor is an admission rule, not a floor for every
   score contribution.
 
-## Archived snapshot output
+## Current output
 
-Corpus at the time of the snapshot: 1,301 abstracts, 1,345 entities, 20,238
-co-occurrence edges. The pipeline filed 24 genes as already studied and
-listed 10 candidates. Scores below are composite scores from
-`results/candidates.csv`, unchanged.
+Full corpus: 1,301 abstracts, 1,345 entities, 20,238 co-occurrence edges.
+132 genes directly mentioned alongside hEDS/HSD, 4 indirect candidates.
+Scores below are composite scores from the refreshed `results/candidates.csv`
+(7 September 2026, live annotation).
 
 | Gene | Composite | Note |
 |---|---|---|
-| PLOD1 | 7.69 | Defines kyphoscoliotic EDS |
-| DSE | 5.40 | Defines musculocontractural EDS |
-| B4GALT7 | 5.40 | Defines spondylodysplastic EDS |
-| AEBP1 | 5.29 | Defines classical-like EDS |
-| TGFB1 | 5.22 | TGF-beta ligand |
-| SLC39A13 | 4.68 | Archived backtest gene, see below |
+| PLOD1 | 7.96 | Defines kyphoscoliotic EDS |
+| AEBP1 | 6.29 | Defines classical-like EDS |
 | FKBP14 | 3.81 | Defines kyphoscoliotic EDS type 2 |
-| VWF | 2.86 | Bridge through bleeding/bruising terms |
-| C1R | 2.83 | Complement C1r |
-| BCL2A1 | 2.78 | Low expression, likely noise |
+| BCL2A1 | 2.78 | Low expression, little support |
 
-Most of the top entries define other EDS subtypes: a gene-family overlap
-hypothesis, not a per-gene finding. Corrected context for three entries:
+The original 10-candidate snapshot (with DSE, B4GALT7, TGFB1, SLC39A13, VWF,
+C1R) is preserved in git history. Those six left the list under the corrected
+direct-mention rule. What remains is a gene-family overlap pattern, not a
+per-gene finding. Context for the three excluded entries of interest:
 
 * SLC39A13. The 2025 GWAS meta-analysis (Petrucci-Nelson et al., medRxiv
   2025.09.19.25336146, 1,815 cases and 5,008 controls) reports a
@@ -109,6 +102,8 @@ hypothesis, not a per-gene finding. Corrected context for three entries:
 BCL2A1 has little supporting evidence here. Its 3.5 TPM annotation is not enough
 to decide biological relevance. ACKR3 appears in the cached GWAS abstract but
 was not an indirect candidate; MIA3 was absent from the cached corpus.
+AEBP1's ClinVar record matched on the September 2026 lookup; that value can
+change between runs because it is a live keyword search, not a curated label.
 
 ## Backtest (archived, original method)
 
@@ -126,7 +121,7 @@ retrospective retrieval, not prospective prediction. The method has not yet
 been compared with a shortlist of known EDS genes or publication-frequency baselines.
 
 The GWAS preprint itself (PMID 41001447) is the single direct co-mention of
-hEDS/HSD seed text with SLC39A13 in the full corpus. The snapshot kept
+hEDS/HSD seed text with SLC39A13 in the full corpus. The original method kept
 SLC39A13 as a candidate because direct filing then required two documents:
 a threshold effect, not an indexing-delay finding. No claim is made of first
 use of literature-based discovery in neighboring diseases.
