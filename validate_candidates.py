@@ -31,9 +31,9 @@ import requests
 from eds_genes import OTHER_EDS_GENES
 
 HEDS_REFERENCE_GENES = {"KLK15", "ACKR3", "SLC39A13", "MIA3", "TNXB"}
-# Genes that define OTHER EDS subtypes (classical, vascular) - relevant for differential
-# diagnosis, not as hEDS-specific ground truth, so kept in a separate bucket.
-DIFFERENTIAL_DIAGNOSIS_GENES = {"COL5A1", "COL5A2", "COL1A1", "COL1A2", "COL3A1"}
+# Full differential context for STRING: every curated other-EDS symbol, not a
+# classical/vascular subset. Derived from eds_genes.py so the flag and the
+# annotation reference cannot drift apart.
 
 ENTREZ_BASE = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
 STRING_BASE = "https://version-12-0.string-db.org/api"
@@ -87,7 +87,7 @@ def gene_symbol(entrez_gene_id):
 
 def string_connected_to_reference(symbol):
     """True/False on a successful lookup, None when the lookup itself failed."""
-    all_refs = HEDS_REFERENCE_GENES | DIFFERENTIAL_DIAGNOSIS_GENES
+    all_refs = HEDS_REFERENCE_GENES | {entry["symbol"] for entry in OTHER_EDS_GENES.values() if isinstance(entry, dict) and isinstance(entry.get("symbol"), str)}
     try:
         resp = requests.get(
             f"{STRING_BASE}/json/interaction_partners",

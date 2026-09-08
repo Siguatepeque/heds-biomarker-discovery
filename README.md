@@ -6,9 +6,7 @@ supplied corpus. That absence is not evidence of novelty. The output does not
 identify causal genes, a single-gene explanation, or a diagnostic biomarker panel.
 STRING, GTEx, and ClinVar provide optional context, not validation or ranking points.
 
-The [point-by-point response to the supplied critique](CRITIQUE_RESPONSE.md)
-distinguishes implemented safeguards from scientific questions this code cannot
-answer. The [offline audit](#offline-evidence-audit) makes the evidence and simple
+The [offline audit](#offline-evidence-audit) makes the evidence and simple
 baselines inspectable; it does not repair missing biological context automatically.
 
 Read the [research notes](https://siguatepeque.github.io/heds-biomarker-discovery/)
