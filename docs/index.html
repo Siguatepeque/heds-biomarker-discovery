@@ -155,7 +155,7 @@
 <header class="title-block">
   <h1>Reading the hEDS literature</h1>
   <p class="dateline">Review dated 7 September 2026. Project: hEDS Biomarker Discovery.</p>
-  <p class="lede">I built this to look for gene connections in the hypermobile EDS literature. The pipeline ranks genes linked through shared terms in PubMed abstracts, then adds information from public gene databases.</p>
+  <p class="lede">I built this to map gene connections in the hypermobile EDS literature. Shared terms in abstracts produce literature rankings, not evidence of a causal gene, novelty, or a diagnostic biomarker.</p>
   <div class="status" id="not">
     <p>hEDS diagnosis uses clinical criteria. These rankings are research leads and must not guide diagnosis, testing, or treatment.</p>
   </div>
@@ -182,19 +182,20 @@
 <section id="short-version" aria-labelledby="short-version-h">
   <h2 id="short-version-h">Short version</h2>
   <p>The September review found that the code left previously mentioned genes on its indirect candidate list. It required two direct co-mentions before excluding a gene. One paper now suffices, and the matcher recognizes spellings it used to miss.</p>
-  <p>The corrected run returns four indirect candidates from 1,301 unique documents: PLOD1, AEBP1, FKBP14, and BCL2A1. SLC39A13, C1R, and VWF have direct mentions in this corpus, so they are excluded. The <a href="https://github.com/Siguatepeque/heds-biomarker-discovery/blob/main/results/candidates.csv">candidates CSV</a> was refreshed with the fixed code and live database annotation; the original 10-gene output survives in git history.</p>
+  <p>The fresh offline audit returns four indirect candidates from 1,301 unique documents. In literature-score order: PLOD1, AEBP1, Gene:597 (resolved as BCL2A1 in the archived lookup), and FKBP14. Three define other EDS subtypes. SLC39A13, C1R, and VWF have direct annotated mentions and are excluded. The <a href="https://github.com/Siguatepeque/heds-biomarker-discovery/tree/main/results/audit">audit outputs</a> include a fresh graph, candidate CSV, source passages for both bridge legs, and a fingerprinted report. The older annotated CSV and control outputs remain labeled snapshots.</p>
+  <p>A <a href="https://github.com/Siguatepeque/heds-biomarker-discovery/blob/main/CRITIQUE_RESPONSE.md">point-by-point response to the supplied evidence briefing</a> explains the corrections and what remains untested. The audit makes evidence inspectable; its passages have not been reviewed for biological relevance.</p>
 </section>
 
 <section id="how" aria-labelledby="how-h">
   <h2 id="how-h">Method</h2>
   <p>Four scripts do the work. <code>fetch_literature.py</code> pulls hEDS and HSD papers from PubMed and tags genes, diseases, and chemicals through PubTator3. <code>build_graph.py</code> links concepts that share an abstract. <code>discover_candidates.py</code> sets aside anything directly co-mentioned with hEDS and ranks the rest by bridge concepts they share with it. <code>validate_candidates.py</code> annotates survivors with STRING, GTEx, and ClinVar records. The idea is old: Swanson used shared-term bridges in the 1980s to connect fish oil and Raynaud disease before any trial had joined them.</p>
-  <p>The database checks add context. STRING includes functional associations and text-mining evidence. GTEx supplies normal-tissue expression, while the ClinVar check searches keywords in up to five records. None measures diagnostic performance. Missing responses remain unknown, and the composite score has not been calibrated as a confidence estimate.</p>
+  <p>The database checks add context only. STRING includes functional associations and text-mining evidence. GTEx supplies normal-tissue expression, while the ClinVar check searches keywords in up to five records. None measures diagnostic performance. Missing responses remain unknown. The arbitrary composite has been removed: annotations cannot affect literature rank. Live lookup timestamps and database versions are recorded, but the API responses remain unfrozen.</p>
 </section>
 
 <section id="test" aria-labelledby="test-h">
   <h2 id="test-h">Backtest</h2>
   <p><code>backtest.py</code> reruns only the graph and discovery steps against cached documents filtered by publication date. It does not re-fetch literature or re-run annotation. On pre-2022 papers (733 documents), the fixed code puts SLC39A13 at rank 3 of 3 with a score of 0.86.</p>
-  <p>The original method placed it last in a list of eight. Its score is unchanged; the revised exclusions shorten the list. There is no matched direct mention of SLC39A13 in this pre-2022 subset. The code was developed after the GWAS was known, so this remains a retrospective check. It has not demonstrated an advantage over simply shortlisting known EDS genes.</p>
+  <p>The original method placed it last in a list of eight. Its score is unchanged; revised exclusions shorten the list. The new pre-2022 audit places SLC39A13 at rank 4 by document frequency and rank 3 by known-EDS frequency, compared with ABC rank 3. At k=3, ABC and the known-EDS baseline each retrieve one of four target groups. This post hoc comparison has not demonstrated an advantage over known-EDS shortlisting, and the code was developed after the GWAS was known.</p>
   <p>The GWAS preprint that later reported the gene, <a href="https://doi.org/10.1101/2025.09.19.25336146">Petrucci-Nelson et al. 2025</a> with 1,815 cases and 5,008 controls, covers a multi-candidate locus that includes SLC39A13 alongside PSMC3, so it is a pointer rather than causal proof. SLC39A13 also came in with a trail: it was already known from a rarer EDS subtype and from joint-hypermobility papers. The supposed index lag was a threshold effect. The GWAS paper was already in the input corpus; the two-paper floor just had not tripped.</p>
 </section>
 
@@ -234,13 +235,13 @@
   <h2 id="backs-up-h">New studies</h2>
   <p><a href="https://doi.org/10.1093/immhor/vlaf044">Griggs et al. 2025 (PMC12448790)</a> ran mass spectrometry on serum from 29 hEDS patients and 29 controls. The spectra are public in <a href="https://www.ebi.ac.uk/pride/archive/projects/PXD062941">PRIDE (PXD062941)</a>. They report complement differences, and they do not reproduce the disease-specific ECM-fragment enrichment that <a href="https://doi.org/10.1002/ajmg.a.63857">Ritelli et al.</a> had proposed from plasma.</p>
   <p><a href="https://doi.org/10.1186/s12014-026-09588-2">Cinquina et al. 2026 (PMC13081554)</a> profiled 88 people with hEDS, 88 with HSD, and 176 controls using Olink protein panels. The normalized protein measurements (NPX) are public in the supplement. They reported no statistically significant protein differences between hEDS and HSD on the tested panels. That does not establish equivalence between the conditions. Neither C1R nor VWF was measured.</p>
-  <p>One handling caveat: all controls were Italian while some cases were American, which leaves room for batch effects.</p>
+  <p>All controls were Italian while some cases were American. The paper reports plate randomization and no significant Italy-US patient differences, so site effects were not wholly ignored. Those checks do not eliminate residual handling confounding or replace a within-Italy sensitivity analysis. A nonsignificant hEDS-HSD difference is not proof that no shared biomarker can exist; neither study validates this shortlist.</p>
 </section>
 
 <section id="check" aria-labelledby="check-h">
   <h2 id="check-h">Limits</h2>
   <p>The search covers hEDS-related abstracts, not the whole of PubMed. A missing connection can reflect an omitted paper, a missed annotation, or terminology the matcher does not recognize. A co-mention can also come from a paper comparing several EDS subtypes; it does not establish a gene's role in hEDS.</p>
-  <p>The next step is to reanalyze the public proteomics measurements and compare the literature rankings with simpler baselines. Cohort overlap and sample handling need checking before agreement counts as independent replication. That analysis has not been done in this repository.</p>
+  <p>Simple baselines and bridge-paper provenance are now available in the offline audit. Context review and public proteomics reanalysis have not been done. The measurement endpoint, cohort overlap and sample handling need checking before agreement counts as independent replication. Literature ranking alone cannot settle those questions.</p>
 </section>
 
 <section id="try" aria-labelledby="try-h">
@@ -248,7 +249,10 @@
   <p>PubTator responses are cached locally; searches and candidate annotations still need network access. From the repository, after creating a Python environment:</p>
   <pre tabindex="0"><code>pip install -r requirements.txt
 python pipeline.py --top-n 20
+python audit_literature.py
+python audit_literature.py --cutoff 2022 --top-n 3 --output-dir results/audit_pre2022
 python backtest.py --cutoffs 2019 2020 2021 2022 2023 2024 2025 2026</code></pre>
+  <p>The audit commands use an existing disease-specific cache without network access. Keep the exact cache: document and code hashes identify a run but cannot reconstruct missing input files.</p>
   <p>The <a href="https://github.com/Siguatepeque/heds-biomarker-discovery#running-it">README</a> has setup and test commands. Tests cover direct mentions, duplicate papers, date filtering, missing API data, and page structure.</p>
 </section>
 

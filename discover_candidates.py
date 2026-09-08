@@ -1,8 +1,9 @@
 """Swanson ABC-model literature-based discovery.
 
-Surfaces genes that are indirectly linked to hEDS/HSD via shared literature context
-(a bridge concept both co-occur with) but are never directly co-mentioned with it -
-i.e. candidates implied by the literature but not directly mentioned alongside hEDS.
+Surfaces genes with shared abstract-level bridge concepts but no detected direct
+annotated co-mention with hEDS/HSD in the supplied corpus. This is a literature
+ranking, not evidence that a gene is novel, causal, or a biomarker. Unannotated
+mentions, missing papers and context can all change its interpretation.
 
 Seed detection works off each mention's raw annotation text, document by document -
 not off the graph's single stored display name per entity ID. PubTator sometimes

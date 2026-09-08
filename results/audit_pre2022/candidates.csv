@@ -1,0 +1,4 @@
+node_id,name,adamic_adar_score,document_frequency,frequency_rank,known_eds_rank,other_eds_subtype
+Gene:597,alpha1,1.7915157339199161,2,3,,
+Gene:165,AEBP1,1.701186587201358,3,1,1,classical-like EDS type 2
+Gene:91252,SLC39A13,0.8603654417131417,2,4,3,spondylodysplastic EDS

@@ -1,22 +1,34 @@
 # hEDS Biomarker Discovery
 
-Pipeline that mines hEDS-related literature for genes linked to hEDS/HSD only
-through shared bridge concepts, ranks them, and checks each against STRING,
-GTEx, and ClinVar. Output is a ranked shortlist for follow-up study. This is
-hypothesis generation, not a diagnostic test. No candidate listed here is a
-validated biomarker.
+An abstract-level literature mapping experiment for hEDS/HSD. It ranks genes
+with shared bridge concepts and no detected direct annotated co-mention in the
+supplied corpus. That absence is not evidence of novelty. The output does not
+identify causal genes, a single-gene explanation, or a diagnostic biomarker panel.
+STRING, GTEx, and ClinVar provide optional context, not validation or ranking points.
+
+The [point-by-point response to the supplied critique](CRITIQUE_RESPONSE.md)
+distinguishes implemented safeguards from scientific questions this code cannot
+answer. The [offline audit](#offline-evidence-audit) makes the evidence and simple
+baselines inspectable; it does not repair missing biological context automatically.
 
 Read the [research notes](https://siguatepeque.github.io/heds-biomarker-discovery/)
 for the evidence review. This file documents the code.
 
-## Archive status
+## Artifact status
 
-`results/candidates.csv` was refreshed on 7 September 2026 with the corrected
+`results/audit/` is the current full-cache, graph-only audit. It includes a fresh
+graph, AA-ranked candidates, bridge-paper provenance, and a fingerprinted report.
+`results/audit_pre2022/` is the equivalent pre-2022 retrospective check at k=3.
+Neither uses live annotation. These are separate runs, not replacements for or
+silent edits to the old snapshots below.
+
+`results/candidates.csv` is an archived annotation snapshot refreshed on 7 September 2026 with the corrected
 code and live STRING/GTEx/ClinVar annotation: 1,301 unique documents, 1,345
 entities, 20,238 edges, 132 directly mentioned genes excluded, 4 indirect
 candidates. SLC39A13, C1R, and VWF are excluded because they have direct
 mentions. Annotation values are live lookups from that date, not fixed constants;
-a rerun can return different STRING/GTEx/ClinVar values.
+a rerun can return different STRING/GTEx/ClinVar values. Its composite column is
+historical: current code no longer computes or ranks by that score.
 
 `results/graph.graphml`, `results/control_candidates.csv`, and
 `results/control_graph.graphml` remain snapshots from before the September 2026
@@ -38,8 +50,8 @@ Where behavior differs from the original method, it is described in
    Edges carry a co-occurrence weight and a stored PMI value. PMI is stored
    only. Ranking does not use it.
 3. Discover (`discover_candidates.py`). Applies the ABC pattern: genes that
-   share a bridge concept with hEDS/HSD but are never directly co-mentioned
-   with it in the same abstract become candidates. Matching uses each
+   share a bridge concept with hEDS/HSD but have no detected direct annotated
+   co-mention in this corpus become candidates. Matching uses each
    annotation's own surface text against the alias list in that file.
 4. Score. Candidates are ranked by Adamic-Adar over bridge nodes: a ranking
    sum, not a probability.
@@ -47,9 +59,14 @@ Where behavior differs from the original method, it is described in
    functional associations (can include text mining, not guaranteed physical
    independent interactions), GTEx normal-tissue expression in fibroblast,
    skin, and aorta proxies (not a case-control result), and ClinVar keyword
-   match over up to 5 records (a weak signal). Adds a composite score. Failed or
-   missing lookups remain unknown and add no points; an unresolved gene symbol
-   no longer drops the candidate. Scores depend on which sources are available.
+   match over up to 5 records (a weak signal). These annotations never affect rank.
+   Failed or missing lookups remain unknown; an unresolved gene symbol does not
+   drop the candidate. Each row records the live lookup run time, STRING version,
+   GTEx dataset and `annotation_mode=live_unfrozen`, not a frozen API snapshot.
+6. Audit (`audit_literature.py`). Runs offline on an explicitly selected cache
+   directory, records both bridge legs and original passages for review, and
+   compares retrieval with frequency and known-EDS baselines. `eds_genes.py`
+   flags differential-diagnosis genes by Entrez ID without removing them.
 
 Definitions used here:
 
@@ -70,15 +87,17 @@ Definitions used here:
 
 Full corpus: 1,301 abstracts, 1,345 entities, 20,238 co-occurrence edges.
 132 genes directly mentioned alongside hEDS/HSD, 4 indirect candidates.
-Scores below are composite scores from the refreshed `results/candidates.csv`
-(7 September 2026, live annotation).
+Scores below are Adamic-Adar literature scores from `results/audit/candidates.csv`,
+not the historical composite scores. Source display names are preserved in the
+offline CSV; `Gene:597` is labeled `alpha1` there, and resolved to BCL2A1 in the
+archived annotation lookup. No new symbol lookup is performed by the audit.
 
-| Gene | Composite | Note |
+| Gene | Adamic-Adar | Note |
 |---|---|---|
-| PLOD1 | 7.96 | Defines kyphoscoliotic EDS |
-| AEBP1 | 6.29 | Defines classical-like EDS |
-| FKBP14 | 3.81 | Defines kyphoscoliotic EDS type 2 |
-| BCL2A1 | 2.78 | Low expression, little support |
+| PLOD1 | 5.964286 | Defines kyphoscoliotic EDS |
+| AEBP1 | 4.294170 | Defines classical-like EDS type 2 |
+| BCL2A1 (`Gene:597`) | 2.428061 | Context unreviewed; not in the curated differential set |
+| FKBP14 | 1.808945 | Defines kyphoscoliotic EDS type 2 |
 
 The original 10-candidate snapshot (with DSE, B4GALT7, TGFB1, SLC39A13, VWF,
 C1R) is preserved in git history. Those six left the list under the corrected
@@ -117,8 +136,13 @@ SLC39A13 at rank 3 of 3, still scoring 0.860365. It has no matched direct mentio
 in that subset. The smaller list reflects stricter exclusions, not new evidence.
 
 The code and target list were developed after the GWAS was known. This checks
-retrospective retrieval, not prospective prediction. The method has not yet
-been compared with a shortlist of known EDS genes or publication-frequency baselines.
+retrospective retrieval, not prospective prediction. The new offline audit adds
+simple baselines over all non-directly-mentioned graph genes, not just ABC survivors.
+Before 2022, SLC39A13 ranks 3 by ABC, 4 by document frequency, and 3 by the
+known-EDS frequency baseline. At k=3, ABC and known-EDS each retrieve 1/4 target
+groups; frequency retrieves 0/4. This does not demonstrate an advantage over
+known-EDS shortlisting. The target list, differential set and this comparison are
+post hoc, not preregistered or historically frozen.
 
 The GWAS preprint itself (PMID 41001447) is the single direct co-mention of
 hEDS/HSD seed text with SLC39A13 in the full corpus. The original method kept
@@ -146,6 +170,9 @@ structure to a genetic bridge.
 
 * Seed matching depends on an alias list and PubTator3 annotations. A paper
   comparing several EDS subtypes can co-mention genes from another subtype.
+  hEDS, HSD and legacy JHS/EDS-HT mentions are pooled, not adjudicated into
+  diagnostically equivalent cohorts. No automatic species/negation/mechanism
+  filter or expert evidence review has been added.
 * STRING, GTEx, and ClinVar supply annotations rather than required pass/fail
   filters. Code tests do not establish biological or diagnostic validity.
 * The backtest filters publication dates in today's cache, not a historical
@@ -165,8 +192,10 @@ have not been reanalyzed in this repository.
 * Cinquina et al. 2026, 88 hEDS plus 88 HSD plus 176 controls, Olink, public
   NPX supplements. Reported no significant hEDS/HSD difference (not
   equivalence). C1R and VWF not measured. Some US patients, all controls
-  Italian. doi 10.1186/s12014-026-09588-2, PMC13081554. Start with a within-Italy
-  comparison to assess collection-site effects; check participant overlap before
+   Italian. The paper reports plate randomization and no DEPs in Italy-US patient
+   comparisons; site effects are not wholly unaddressed, but US controls are absent.
+   doi 10.1186/s12014-026-09588-2, PMC13081554. Start with a within-Italy
+   comparison to assess residual collection-site effects; check participant overlap before
   calling agreement between studies independent replication.
 
 ## Running it
@@ -182,6 +211,46 @@ python pipeline.py --top-n 20
 The scripts pause between API calls. Runtime depends on corpus size and service
 availability. PubTator responses are cached under `cache/`; search and candidate
 annotation still use the network. Pass `--skip-cache` to refetch PubTator data.
+
+### Offline evidence audit
+
+With a populated hEDS-specific `cache/` directory:
+
+```
+python audit_literature.py
+python audit_literature.py --cutoff 2022 --top-n 3 --output-dir results/audit_pre2022
+```
+
+`--cache-dir` selects a directory of `pubtator_*.json` document lists. The audit
+does not search PubMed, fetch missing records, resolve symbols, or call annotation
+APIs. Do not mix control-disease batches into that directory: cache filenames do
+not establish disease-query membership. Empty input, malformed records, and
+conflicting versions of the same PMID fail rather than silently selecting one.
+
+Each output directory contains:
+
+* `candidates.csv`: **all** admitted candidates in AA order, document frequency,
+  baseline ranks and an other-EDS differential flag. Blank flag means not in the
+  curated set, not absence of other-disease relevance. `--top-n` sets metric k only.
+* `evidence.json`: each scored bridge's seed-document IDs (A-B), gene/bridge
+  document IDs (B-C), degree and contribution, plus the referenced passages and
+  annotations. `admission_edge=false` identifies single-document edges that
+  contribute after another edge admits the candidate. All context is unreviewed.
+* `graph.graphml`: a graph from the same effective corpus as the CSV.
+* `report.json`: input/effective corpus hashes, input-file and code hashes,
+  output hashes, document IDs, date gaps, parameters, environment versions,
+  complete baseline rankings and target retrieval. Alternate KLK15 records share
+  one target denominator entry. No-seed cutoffs are untestable, not specificity successes.
+
+Before 2022 the audit retains 733 documents; 4 input documents have missing or
+invalid dates and cannot enter a dated cutoff. Full-cache target recall is 0/4
+for all three rankings, but there are **zero eligible target groups**: three are
+directly mentioned and MIA3 is absent. This is not a prospective recall estimate.
+
+The fingerprints allow checking which inputs/code produced these files and
+detecting mixed artifacts. The full input cache is not committed; hashes alone
+cannot reconstruct missing abstracts. Keep the exact cache to reproduce a run.
+Live annotation rows remain unfrozen; their timestamps do not solve API drift.
 
 After fetching a corpus, run the graph-only backtest without network calls:
 
@@ -206,6 +275,7 @@ venv\Scripts\python tests\test_backtest.py
 venv\Scripts\python tests\test_controls.py
 venv\Scripts\python tests\test_validate_candidates.py
 venv\Scripts\python tests\test_site.py
+venv\Scripts\python tests\test_audit_literature.py
 ```
 
 * `test_build_graph.py` checks single-mention exclusion, seed aliases, subtype
@@ -216,8 +286,12 @@ venv\Scripts\python tests\test_site.py
   cross-match and that the control swap restores hEDS config.
 
 * `test_validate_candidates.py` distinguishes missing API data from negative
-  results and checks that unresolved candidates remain in the output.
+  results, checks that unresolved candidates remain, and proves annotations cannot
+  change rank or silently drop differential-diagnosis genes.
 * `test_site.py` checks page anchors, table headers, and the static HTML structure.
+* `test_audit_literature.py` checks provenance and score sums, baseline universes,
+  target denominators, date filtering, conflicting cache records, empty/no-seed
+  results and deterministic artifact regeneration.
 
 ## References
 

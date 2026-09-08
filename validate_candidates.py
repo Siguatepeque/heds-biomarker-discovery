@@ -1,29 +1,34 @@
-"""Annotate ABC-model candidate genes with plausibility signals from public sources.
+"""Annotate ABC-model candidate genes with weak plausibility context (no ranking effect).
 
-Reference gene sets reflect the current (2024-2025) hEDS-specific research landscape,
-not the classical/vascular-EDS collagen genes those OTHER subtypes are defined by:
-- KLK15 (kallikrein cluster): recurrent variant in WES of 200 hEDS patients, reproduces
-  connective-tissue defects in mouse knock-ins (Norris Lab, PMC11213194, 2024).
-- ACKR3, SLC39A13: reported genome-wide-significant loci from the first hEDS GWAS
-  meta-analysis (Petrucci-Nelson et al., medRxiv 2025.09.19.25336146, preprint -
-  still requiring replication), provisionally suggesting a neuroimmune/stromal
-  model rather than a single collagen gene.
-- MIA3: separately proposed 2024-2025 candidate, still unresolved.
-- TNXB: long-studied partial-deficiency lead; real but explains only ~1% of cases, and
-  serum tenascin-X failed as a screening test (PMC6820911) - kept as a weak legacy
-  plausibility anchor, not a strong reference.
+Reference symbols (KLK15, ACKR3, SLC39A13, MIA3, TNXB) are literature research
+anchors, not ground truth, not causal claims, and not diagnostic criteria: they
+mark where recent hEDS-adjacent reports cluster, and any locus-to-gene link is
+provisional. OTHER_EDS_GENES in eds_genes.py is a curated
+annotation set for other EDS subtypes used only for differential-diagnosis
+context; absence from it (None) means not in the curated set, not biological
+exclusion, and flagged genes are never removed for carrying a subtype flag.
 
-Each annotation is heuristic and unscored when its source is unavailable: a failed
-lookup returns None (unknown), never a biological False/0. STRING here is the default
-interaction_partners endpoint (functional + physical associations at score >= 700),
-not a physical-only network and not an independent validation. The ClinVar check is
-a limited keyword match over the first few esummary records, not a variant-level
-review.
+Each annotation is heuristic, unfrozen/live, and unscored when its source is
+unavailable: a failed lookup returns None (unknown), never a biological
+False/0. STRING v12.0 here is the default interaction_partners endpoint
+(functional associations including text-mining at score >= 700), i.e.
+non-independent literature-adjacent context, not independent validation and
+not a physical-only network. The ClinVar check is a limited keyword match over
+at most 5 esummary records, i.e. keyword hits only, not established variant
+evidence. GTEx v8 bulk medians are proxy-tissue context only.
+
+Row metadata records annotation_retrieved_at_utc (run timestamp),
+string_version, gtex_dataset, and annotation_mode='live_unfrozen'; the
+timestamp marks when live sources were queried, not raw-snapshot
+reproducibility, since unfrozen sources can drift.
 """
 import math
 import time
+from datetime import datetime, timezone
 
 import requests
+
+from eds_genes import OTHER_EDS_GENES
 
 HEDS_REFERENCE_GENES = {"KLK15", "ACKR3", "SLC39A13", "MIA3", "TNXB"}
 # Genes that define OTHER EDS subtypes (classical, vascular) - relevant for differential
@@ -215,28 +220,40 @@ def clinvar_relevant(symbol):
 
 
 def validate(long_list_df, top_n=20):
-    """For each long-list candidate, resolve its gene symbol and annotate with
-    STRING/GTEx/ClinVar plausibility signals. Unknown lookups (None) contribute
-    nothing to the heuristic composite and are marked unscored/unknown in the
-    rationale. Returns the top_n rows by composite score, sorted descending."""
+    """Annotate each long-list candidate with STRING/GTEx/ClinVar context.
+
+    Annotations never affect rank: rows are sorted by descending
+    adamic_adar_score with a deterministic node_id tie-break. Unknown lookups
+    (None) are marked unknown (annotation only) in the rationale. Returns the
+    top_n rows. Unresolved symbols and other-EDS-subtype flags are kept, never
+    dropped: other_eds_subtype is a curation annotation only (None means not
+    in the curated set, not biological exclusion).
+    """
+    retrieved_at = datetime.now(timezone.utc).isoformat()
     rows = []
     for _, row in long_list_df.iterrows():
-        entrez_id = row["node_id"].split(":", 1)[1]
+        node_id = row["node_id"]
+        subtype = OTHER_EDS_GENES.get(node_id, {}).get("subtype")
+        entrez_id = node_id.split(":", 1)[1]
         symbol = gene_symbol(entrez_id)
         time.sleep(REQUEST_DELAY)
         if not symbol:
             # Never drop a candidate: keep the row with a null symbol and all
-            # sources unscored, and skip protein API queries without a symbol.
-            name = row["name"] if "name" in row and row["name"] else row["node_id"]
+            # sources unknown, and skip protein API queries without a symbol.
+            name = row["name"] if "name" in row and row["name"] else node_id
             rows.append({
-                "gene_symbol": None, "node_id": row["node_id"],
+                "gene_symbol": None, "node_id": node_id,
                 "adamic_adar_score": row["adamic_adar_score"],
                 "string_connected": None, "gtex_max_median_tpm": None,
-                "clinvar_relevant": None, "composite_score": row["adamic_adar_score"],
+                "clinvar_relevant": None, "other_eds_subtype": subtype,
+                "annotation_retrieved_at_utc": retrieved_at,
+                "string_version": "12.0", "gtex_dataset": GTEX_DATASET,
+                "annotation_mode": "live_unfrozen",
                 "rationale": (
-                    f"{row['node_id']} ({name}): gene symbol unresolved, "
+                    f"{node_id} ({name}): gene symbol unresolved, "
                     f"literature bridge score {row['adamic_adar_score']:.2f}; "
-                    "STRING/GTEx/ClinVar unscored (unknown)."
+                    "STRING/GTEx/ClinVar unknown (annotation only, does not affect rank); "
+                    f"other-EDS subtype flag (curation annotation only, null means not in curated set): {subtype}."
                 ),
             })
             continue
@@ -248,27 +265,27 @@ def validate(long_list_df, top_n=20):
         clinvar_hit = clinvar_relevant(symbol)
         time.sleep(REQUEST_DELAY)
 
-        composite = (
-            row["adamic_adar_score"]
-            + (1 if string_hit is True else 0)
-            + (min(expression / 10.0, 1.0) if expression is not None else 0)
-            + (1 if clinvar_hit is True else 0)
-        )
-        string_txt = str(string_hit) if string_hit is not None else "unknown (source unscored)"
-        expression_txt = f"{expression:.1f}" if expression is not None else "unknown (source unscored)"
-        clinvar_txt = str(clinvar_hit) if clinvar_hit is not None else "unknown (source unscored)"
+        string_txt = str(string_hit) if string_hit is not None else "unknown (annotation only, does not affect rank)"
+        expression_txt = f"{expression:.1f}" if expression is not None else "unknown (annotation only, does not affect rank)"
+        clinvar_txt = str(clinvar_hit) if clinvar_hit is not None else "unknown (annotation only, does not affect rank)"
         rationale = (
             f"{symbol}: literature bridge score {row['adamic_adar_score']:.2f}; "
-            f"STRING-connected to a known hEDS/EDS-family gene: {string_txt}; "
+            "STRING v12.0 functional (incl. text-mining) context, not independent validation "
+            f"- connected to a reference anchor set: {string_txt}; "
             f"connective-tissue expression (max median TPM across proxies): {expression_txt}; "
-            f"ClinVar has a connective-tissue-relevant record: {clinvar_txt}."
+            "ClinVar keyword hits among <=5 records (not established variant evidence) "
+            f": {clinvar_txt}; "
+            f"other-EDS subtype flag (curation annotation only, null means not in curated set): {subtype}."
         )
         rows.append({
-            "gene_symbol": symbol, "node_id": row["node_id"],
+            "gene_symbol": symbol, "node_id": node_id,
             "adamic_adar_score": row["adamic_adar_score"],
             "string_connected": string_hit, "gtex_max_median_tpm": expression,
-            "clinvar_relevant": clinvar_hit, "composite_score": composite,
+            "clinvar_relevant": clinvar_hit, "other_eds_subtype": subtype,
+            "annotation_retrieved_at_utc": retrieved_at,
+            "string_version": "12.0", "gtex_dataset": GTEX_DATASET,
+            "annotation_mode": "live_unfrozen",
             "rationale": rationale,
         })
-    rows.sort(key=lambda r: r["composite_score"], reverse=True)
+    rows.sort(key=lambda r: (-r["adamic_adar_score"], r["node_id"]))
     return rows[:top_n]

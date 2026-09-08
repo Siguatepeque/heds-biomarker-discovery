@@ -1,0 +1,5 @@
+node_id,name,adamic_adar_score,document_frequency,frequency_rank,known_eds_rank,other_eds_subtype
+Gene:5351,PLOD1,5.964285911021104,5,2,2,kyphoscoliotic EDS
+Gene:165,AEBP1,4.294170411045279,5,1,1,classical-like EDS type 2
+Gene:597,alpha1,2.428060730838426,2,4,,
+Gene:55033,FKBP14,1.808945479587609,2,3,3,kyphoscoliotic EDS

@@ -1,7 +1,7 @@
 """CLI: run the full hEDS literature-based discovery pipeline end to end.
 
 fetch (PubMed + PubTator3) -> graph (co-occurrence) -> discover (ABC-model) ->
-validate (STRING/GTEx/ClinVar) -> results/candidates.csv
+annotate (STRING/GTEx/ClinVar; no ranking effect) -> results/candidates.csv
 """
 import argparse
 from pathlib import Path
@@ -37,7 +37,8 @@ def main():
 
     print("Running ABC-model discovery...")
     long_list, directly_mentioned = discover(
-        graph, documents, min_weight=args.min_weight, max_bridge_degree=args.max_bridge_degree
+        graph, documents, min_weight=args.min_weight, max_bridge_degree=args.max_bridge_degree,
+        top_n=len(graph)
     )
     print(f"  {len(long_list)} candidates, {len(directly_mentioned)} directly-mentioned genes excluded")
 
