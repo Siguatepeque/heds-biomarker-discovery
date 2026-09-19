@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="920" height="352" viewBox="0 0 920 352" role="img" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Method overview: from PubMed query to offline audit</title>
+  <desc>Six stages left to right: PubMed query for hEDS/HSD papers; PubTator3 entity annotations; abstract co-occurrence graph counting each PMID once; ABC filter excluding directly mentioned genes; Adamic-Adar ranking sum; offline evidence audit with bridge provenance and frequency baselines. A dashed side branch shows STRING, GTEx and ClinVar as annotation context that never affects rank. Scores are ranking sums, not probabilities, with no diagnostic validation.</desc>
+  <defs>
+    <marker id="arr" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#57606a"/>
+    </marker>
+    <marker id="arrd" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#57606a"/>
+    </marker>
+  </defs>
+  <rect x="1" y="1" width="918" height="350" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="460" y="34" text-anchor="middle" font-size="17" font-weight="700" fill="#1f2328">Literature mapping pipeline</text>
+
+  <g font-size="12.5">
+    <rect x="16" y="56" width="124" height="92" rx="6" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+    <text x="78" y="98" text-anchor="middle" font-weight="700" fill="#1f2328">PubMed query</text>
+    <text x="78" y="117" text-anchor="middle" font-size="11" fill="#57606a">hEDS/HSD papers</text>
+
+    <rect x="168" y="56" width="124" height="92" rx="6" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+    <text x="230" y="98" text-anchor="middle" font-weight="700" fill="#1f2328">PubTator3</text>
+    <text x="230" y="117" text-anchor="middle" font-size="11" fill="#57606a">entity annotations</text>
+
+    <rect x="320" y="56" width="124" height="92" rx="6" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+    <text x="382" y="89" text-anchor="middle" font-weight="700" fill="#1f2328">Co-occurrence</text>
+    <text x="382" y="107" text-anchor="middle" font-size="11" fill="#57606a">abstract graph</text>
+    <text x="382" y="123" text-anchor="middle" font-size="10" fill="#57606a">each PMID counted once</text>
+
+    <rect x="472" y="56" width="124" height="92" rx="6" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+    <text x="534" y="89" text-anchor="middle" font-weight="700" fill="#1f2328">ABC filter</text>
+    <text x="534" y="107" text-anchor="middle" font-size="11" fill="#57606a">excludes direct</text>
+    <text x="534" y="123" text-anchor="middle" font-size="11" fill="#57606a">mentions</text>
+
+    <rect x="624" y="56" width="124" height="92" rx="6" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+    <text x="686" y="98" text-anchor="middle" font-weight="700" fill="#1f2328">Adamic-Adar</text>
+    <text x="686" y="117" text-anchor="middle" font-size="11" fill="#57606a">ranking sum</text>
+
+    <rect x="776" y="56" width="124" height="92" rx="6" fill="#e6f4ea" stroke="#1a7f37" stroke-width="2"/>
+    <text x="838" y="89" text-anchor="middle" font-weight="700" fill="#1f2328">Offline audit</text>
+    <text x="838" y="107" text-anchor="middle" font-size="11" fill="#1f2328">provenance and</text>
+    <text x="838" y="123" text-anchor="middle" font-size="11" fill="#1f2328">baselines</text>
+  </g>
+
+  <g stroke="#57606a" stroke-width="2">
+    <line x1="142" y1="102" x2="163" y2="102" marker-end="url(#arr)"/>
+    <line x1="294" y1="102" x2="315" y2="102" marker-end="url(#arr)"/>
+    <line x1="446" y1="102" x2="467" y2="102" marker-end="url(#arr)"/>
+    <line x1="598" y1="102" x2="619" y2="102" marker-end="url(#arr)"/>
+    <line x1="750" y1="102" x2="771" y2="102" marker-end="url(#arr)"/>
+  </g>
+
+  <g font-size="11" fill="#1f2328">
+    <rect x="141" y="265" width="10" height="10" fill="#f6f8fa" stroke="#57606a" stroke-width="1.5"/>
+    <text x="157" y="274">Network fetch and graph steps</text>
+    <rect x="345" y="265" width="10" height="10" fill="#e6f4ea" stroke="#1a7f37" stroke-width="1.5"/>
+    <text x="361" y="274">Offline audit on a selected cache</text>
+    <rect x="576" y="265" width="10" height="10" fill="#ffffff" stroke="#57606a" stroke-width="1.5" stroke-dasharray="4 2"/>
+    <text x="592" y="274">Annotation context, never ranked</text>
+  </g>
+
+  <line x1="686" y1="150" x2="686" y2="172" stroke="#57606a" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#arrd)"/>
+  <rect x="472" y="176" width="276" height="66" rx="6" fill="#ffffff" stroke="#57606a" stroke-width="1.5" stroke-dasharray="6 4"/>
+  <text x="610" y="203" text-anchor="middle" font-size="14" font-weight="700" fill="#1f2328">STRING · GTEx · ClinVar</text>
+  <text x="610" y="224" text-anchor="middle" font-size="12" fill="#57606a">context only; never affects rank</text>
+
+  <rect x="16" y="282" width="888" height="54" rx="6" fill="#f6f8fa" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="460" y="304" text-anchor="middle" font-size="13.5" font-weight="700" fill="#1f2328">Ranking sums, not probabilities.</text>
+  <text x="460" y="325" text-anchor="middle" font-size="12.5" fill="#1f2328">Nothing here is validated for diagnosis.</text>
+</svg>

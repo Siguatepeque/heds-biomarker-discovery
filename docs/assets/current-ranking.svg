@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="352" viewBox="0 0 760 352" role="img" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+  <title>Current ranking: Adamic-Adar scores for four indirect candidates</title>
+  <desc>Horizontal bars for the graph-only offline audit: PLOD1 5.964286, AEBP1 4.294170, BCL2A1 labelled Gene:597 2.428061, FKBP14 1.808945. Bar length encodes the Adamic-Adar literature ranking score, a sum and not a probability. It does not measure biological effect or validity.</desc>
+  <rect x="1" y="1" width="758" height="350" rx="8" fill="#ffffff" stroke="#d0d7de" stroke-width="1.5"/>
+  <text x="24" y="34" font-size="16.5" font-weight="700" fill="#1f2328">Current audit: Adamic-Adar literature scores</text>
+  <text x="24" y="56" font-size="12.5" fill="#57606a">Graph-only offline audit (results/audit) · ranking sum, not probability</text>
+
+  <g stroke="#e5e7eb" stroke-width="1">
+    <line x1="208" y1="78" x2="208" y2="300"/>
+    <line x1="340" y1="78" x2="340" y2="300"/>
+    <line x1="473" y1="78" x2="473" y2="300"/>
+    <line x1="605" y1="78" x2="605" y2="300"/>
+  </g>
+
+  <g font-size="14" fill="#1f2328" text-anchor="end">
+    <text x="196" y="108">PLOD1</text>
+    <text x="196" y="166">AEBP1</text>
+    <text x="196" y="224">BCL2A1 (Gene:597)</text>
+    <text x="196" y="282">FKBP14</text>
+  </g>
+
+  <g fill="#0072B2">
+    <rect x="208" y="86" width="395" height="32" rx="3"/>
+    <rect x="208" y="144" width="284" height="32" rx="3"/>
+    <rect x="208" y="202" width="161" height="32" rx="3"/>
+    <rect x="208" y="260" width="120" height="32" rx="3"/>
+  </g>
+
+  <g font-size="12.5" fill="#1f2328" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">
+    <text x="611" y="107">5.964286</text>
+    <text x="500" y="165">4.294170</text>
+    <text x="377" y="223">2.428061</text>
+    <text x="336" y="281">1.808945</text>
+  </g>
+
+  <line x1="208" y1="300" x2="638" y2="300" stroke="#57606a" stroke-width="1.5"/>
+  <g font-size="12" fill="#57606a" text-anchor="middle">
+    <text x="208" y="318">0</text>
+    <text x="340" y="318">2</text>
+    <text x="473" y="318">4</text>
+    <text x="605" y="318">6</text>
+  </g>
+  <text x="423" y="340" text-anchor="middle" font-size="12.5" fill="#57606a">Adamic-Adar score</text>
+</svg>
